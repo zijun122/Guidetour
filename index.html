@@ -1,0 +1,5336 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KV规范指南</title>
+  <style>
+    /* 基础样式 */
+    :root {
+      /* 移除蓝色，改为黑白+灰色调的苹果风格 */
+      --primary: #000000;
+      --primary-light: #333333;
+      --huawei: #D81E06;
+      --dark-bg: #000000;
+      --light-bg: #FFFFFF;
+      --text-dark: #1D1D1F;
+      --text-light: #F5F5F7;
+      --border-light: #D2D2D7;
+      --border-dark: #424245;
+      --bg-light: #FFFFFF;
+      --bg-dark: #000000;
+      --card-bg-light: #FFFFFF;
+      --card-bg-dark: #1D1D1F;
+      --card-border-light: #D2D2D7;
+      --card-border-dark: #424245;
+      
+      /* 苹果风格UI变量 */
+      --apple-gray-50: #F5F5F7;
+      --apple-gray-100: #E5E5EA;
+      --apple-gray-200: #D1D1D6;
+      --apple-gray-300: #C7C7CC;
+      --apple-gray-400: #AEAEB2;
+      --apple-gray-500: #8E8E93;
+      --apple-gray-600: #636366;
+      --apple-gray-700: #48484A;
+      --apple-gray-800: #3A3A3C;
+      --apple-gray-900: #1D1D1F;
+      
+      --apple-light-elevation: 0 2px 5px rgba(0,0,0,0.07);
+      --apple-dark-elevation: 0 2px 5px rgba(0,0,0,0.3);
+      --apple-border-radius: 12px;
+      --apple-button-radius: 8px;
+      --apple-small-radius: 6px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    
+    /* 暗黑模式 */
+    body.dark {
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* 标题容器，添加一些样式以便在编辑状态有更好的视觉反馈 */
+    .title-container {
+      position: relative;
+      max-width: 80%;
+      margin: 0 auto 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.3s ease;
+      color: var(--text-dark);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+    
+    .dark h1 {
+      color: var(--text-light);
+    }
+    
+    .title-edit-btn {
+      opacity: 0;
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--apple-gray-100);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .title-container:hover .title-edit-btn {
+      opacity: 0.7;
+    }
+    
+    .title-edit-btn:hover {
+      opacity: 1 !important;
+      background-color: var(--apple-gray-300);
+      color: var(--text-dark);
+    }
+    
+    .dark .title-edit-btn {
+      background-color: var(--apple-gray-800);
+      color: var(--apple-gray-100);
+    }
+    
+    .editable-title {
+      background-color: rgba(0, 0, 0, 0.05);
+      border: 1px dashed var(--apple-gray-400);
+      min-width: 200px;
+      outline: none;
+    }
+    
+    .dark .editable-title {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px dashed var(--apple-gray-600);
+    }
+    
+    /* 苹果风格的按钮 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: var(--apple-button-radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      outline: none;
+      font-size: 0.875rem;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .btn-primary {
+      background-color: var(--text-dark);
+      color: white;
+    }
+    
+    .dark .btn-primary {
+      background-color: white;
+      color: var(--text-dark);
+    }
+    
+    .btn-primary:hover {
+      background-color: #2c2c2e;
+    }
+    
+    .dark .btn-primary:hover {
+      background-color: #e5e5ea;
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-default {
+      background-color: var(--apple-gray-100);
+      color: var(--text-dark);
+    }
+    
+    .dark .btn-default {
+      background-color: var(--apple-gray-800);
+      color: var(--text-light);
+    }
+    
+    .btn-default:hover {
+      background-color: var(--apple-gray-200);
+    }
+    
+    .dark .btn-default:hover {
+      background-color: var(--apple-gray-700);
+    }
+    
+    .btn-green {
+      background-color: #34C759;
+      color: white;
+    }
+    
+    .btn-green:hover {
+      background-color: #28A745;
+    }
+    
+    .btn-red {
+      background-color: #FF3B30;
+      color: white;
+    }
+    
+    .btn-red:hover {
+      background-color: #E52C23;
+    }
+    
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+    }
+    
+    /* 表单元素 */
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--apple-small-radius);
+      border: 1px solid var(--apple-gray-300);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background-color: white;
+    }
+    
+    body.dark input, 
+    body.dark textarea, 
+    body.dark select {
+      background-color: var(--apple-gray-800);
+      border-color: var(--border-dark);
+      color: var(--text-light);
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--apple-gray-500);
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark input:focus, 
+    .dark textarea:focus, 
+    .dark select:focus {
+      border-color: var(--apple-gray-500);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+    
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: var(--text-dark);
+    }
+    
+    .dark label {
+      color: var(--text-light);
+    }
+    
+    /* 网格和布局 */
+    .flex {
+      display: flex;
+    }
+    
+    .justify-center {
+      justify-content: center;
+    }
+    
+    .justify-between {
+      justify-content: space-between;
+    }
+    
+    .justify-end {
+      justify-content: flex-end;
+    }
+    
+    .items-center {
+      align-items: center;
+    }
+    
+    .flex-col {
+      flex-direction: column;
+    }
+    
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+    
+    .gap-2 {
+      gap: 0.5rem;
+    }
+    
+    .gap-4 {
+      gap: 1rem;
+    }
+    
+    .mb-1 {
+      margin-bottom: 0.25rem;
+    }
+    
+    .mb-2 {
+      margin-bottom: 0.5rem;
+    }
+    
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+    
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+    
+    .mb-8 {
+      margin-bottom: 2rem;
+    }
+    
+    .ml-2 {
+      margin-left: 0.5rem;
+    }
+    
+    .mr-1 {
+      margin-right: 0.25rem;
+    }
+    
+    .mr-2 {
+      margin-right: 0.5rem;
+    }
+    
+    .ml-3 {
+      margin-left: 0.75rem;
+    }
+    
+    .mt-1 {
+      margin-top: 0.25rem;
+    }
+    
+    .mt-2 {
+      margin-top: 0.5rem;
+    }
+    
+    .mt-4 {
+      margin-top: 1rem;
+    }
+    
+    .p-4 {
+      padding: 1rem;
+    }
+    
+    .p-6 {
+      padding: 1.5rem;
+    }
+    
+    .px-3 {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .px-6 {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    
+    .py-2 {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    
+    .py-8 {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+    
+    .rounded-md {
+      border-radius: 0.375rem;
+    }
+    
+    .rounded-lg {
+      border-radius: 0.5rem;
+    }
+    
+    .rounded-xl {
+      border-radius: 0.75rem;
+    }
+    
+    .shadow-lg {
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .shadow-lg {
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    .shadow-2xl {
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .dark .shadow-2xl {
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .text-sm {
+      font-size: 0.875rem;
+    }
+    
+    .text-lg {
+      font-size: 1.125rem;
+    }
+    
+    .text-xl {
+      font-size: 1.25rem;
+    }
+    
+    .text-gray-500 {
+      color: var(--apple-gray-500);
+    }
+    
+    .text-gray-600 {
+      color: var(--apple-gray-600);
+    }
+    
+    .dark .text-gray-400 {
+      color: var(--apple-gray-400);
+    }
+    
+    .dark .text-gray-300 {
+      color: var(--apple-gray-300);
+    }
+    
+    .text-primary {
+      color: var(--text-dark);
+    }
+    
+    .dark .text-primary {
+      color: var(--text-light);
+    }
+    
+    .font-medium {
+      font-weight: 500;
+    }
+    
+    .font-bold {
+      font-weight: 700;
+    }
+    
+    .overflow-hidden {
+      overflow: hidden;
+    }
+    
+    .relative {
+      position: relative;
+    }
+    
+    .absolute {
+      position: absolute;
+    }
+    
+    .fixed {
+      position: fixed;
+    }
+    
+    .inset-0 {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .w-full {
+      width: 100%;
+    }
+    
+    .h-full {
+      height: 100%;
+    }
+    
+    .border {
+      border: 1px solid var(--border-light);
+    }
+    
+    .dark .border {
+      border-color: var(--border-dark);
+    }
+    
+    .border-l-4 {
+      border-left-width: 4px;
+    }
+    
+    .border-gray-400 {
+      border-color: var(--apple-gray-400);
+    }
+    
+    .bg-white {
+      background-color: white;
+    }
+    
+    .dark .bg-gray-800 {
+      background-color: var(--apple-gray-800);
+    }
+    
+    .bg-gray-50 {
+      background-color: var(--apple-gray-50);
+    }
+    
+    .dark .bg-gray-900 {
+      background-color: var(--apple-gray-900);
+    }
+    
+    /* KV容器样式 */
+    .kv-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      max-height: 70vh;
+      overflow: hidden;
+      background-color: white;
+      border-radius: var(--apple-border-radius);
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .kv-container {
+      background-color: var(--apple-gray-900);
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    /* 高亮区域样式 - 新增 */
+    .highlight-area {
+      position: absolute;
+      border: 2px solid transparent;
+      background-color: transparent;
+      border-radius: 0.375rem;
+      z-index: 15;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .highlight-area:hover, .highlight-area.active {
+      border-color: var(--text-dark);
+      background-color: rgba(0, 0, 0, 0.15);
+    }
+    
+    .dark .highlight-area:hover, .dark .highlight-area.active {
+      border-color: white;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 锁定状态的高亮区域 */
+    .highlight-area.locked {
+      border-color: var(--text-dark);
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 0 1px var(--text-dark);
+    }
+    
+    .dark .highlight-area.locked {
+      border-color: white;
+      background-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 0 1px white;
+    }
+    
+    /* 可编辑高亮区域样式 - 新增 */
+    .highlight-area-edit {
+      position: absolute;
+      border: 2px solid var(--text-dark);
+      background-color: rgba(0, 0, 0, 0.15);
+      cursor: move;
+      padding: 5px;
+      border-radius: 4px;
+      z-index: 20;
+    }
+    
+    .dark .highlight-area-edit {
+      border-color: white;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 高亮区标签样式 - 新增 */
+    .highlight-label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: var(--text-dark);
+      color: white;
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 3px 0 3px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      pointer-events: none;
+    }
+    
+    .dark .highlight-label {
+      background-color: white;
+      color: var(--text-dark);
+    }
+    
+    /* 信息侧栏样式 - 新增 */
+    .info-sidebar {
+      width: 100%;
+      padding: 1rem;
+      border-radius: var(--apple-border-radius);
+      background-color: white;
+      box-shadow: var(--apple-light-elevation);
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    
+    .dark .info-sidebar {
+      background-color: var(--apple-gray-900);
+      color: var(--text-light);
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    .info-sidebar-title {
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-dark);
+    }
+    
+    .dark .info-sidebar-title {
+      color: var(--text-light);
+    }
+    
+    .info-sidebar-content {
+      overflow-y: auto;
+      max-height: 50vh;
+    }
+    
+    .info-default {
+      color: var(--apple-gray-500);
+      font-style: italic;
+      text-align: center;
+      padding: 2rem 0;
+    }
+    
+    /* 双列布局 - 新增 */
+    .kv-guide-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .kv-image-section {
+      flex: 1 1 60%;
+      min-width: 300px;
+    }
+    
+    .kv-info-section {
+      flex: 1 1 35%;
+      min-width: 300px;
+    }
+    
+    /* 编辑模式下隐藏普通高亮区域 - 新增 */
+    .edit-mode #viewing-container {
+      display: none;
+    }
+    
+    /* 提示工具 */
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .tooltip:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* 模态框样式 */
+    .modal {
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      padding: 1rem;
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      border-radius: var(--apple-border-radius);
+    }
+    
+    /* 关闭按钮 */
+    .close-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--apple-gray-100);
+      color: var(--apple-gray-700);
+      cursor: pointer;
+      border: 1px solid var(--apple-gray-200);
+      transition: all 0.2s ease;
+    }
+    
+    .dark .close-button {
+      background-color: var(--apple-gray-800);
+      color: var(--apple-gray-300);
+      border-color: var(--apple-gray-700);
+    }
+    
+    .close-button:hover {
+      background-color: var(--apple-gray-200);
+      transform: scale(1.05);
+    }
+    
+    .dark .close-button:hover {
+      background-color: var(--apple-gray-700);
+    }
+    
+    /* 文件上传区域 */
+    .file-drop-area {
+      border: 2px dashed var(--apple-gray-300);
+      border-radius: var(--apple-border-radius);
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+    
+    .file-drop-area:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .dark .file-drop-area {
+      border-color: var(--apple-gray-700);
+    }
+    
+    .dark .file-drop-area:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    /* 删除按钮 */
+    .delete-handle {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      background-color: #FF3B30;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 25;
+      border: 1px solid white;
+      transition: all 0.2s ease;
+    }
+    
+    .delete-handle:hover {
+      transform: scale(1.1);
+      background-color: #E52C23;
+    }
+    
+    /* 特效动画 */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+    
+    /* 网格布局 */
+    .grid {
+      display: grid;
+    }
+    
+    .grid-cols-1 {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    
+    .gap-4 {
+      gap: 1rem;
+    }
+    
+    .space-y-1 > * + * {
+      margin-top: 0.25rem;
+    }
+    
+    .space-y-2 > * + * {
+      margin-top: 0.5rem;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+    
+    /* 边框和列表样式 */
+    .list-disc {
+      list-style-type: disc;
+    }
+    
+    .list-inside {
+      list-style-position: inside;
+    }
+    
+    .list-decimal {
+      list-style-type: decimal;
+    }
+    
+    .pl-4 {
+      padding-left: 1rem;
+    }
+    
+    .pl-5 {
+      padding-left: 1.25rem;
+    }
+    
+    /* 链接样式 */
+    a {
+      color: var(--text-dark);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .dark a {
+      color: var(--text-light);
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    /* 手机和平板适配 */
+    @media (min-width: 768px) {
+      .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      
+      .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    
+    /* 暗黑模式开关 */
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background-color: var(--bg-light);
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      z-index: 40;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .theme-toggle {
+      background-color: var(--dark-bg);
+      border-color: var(--border-dark);
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.05);
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    /* 提示 */
+    .alert {
+      border-radius: var(--apple-border-radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .alert-default {
+      background-color: var(--apple-gray-50);
+      border-left: 4px solid var(--apple-gray-300);
+    }
+    
+    .dark .alert-default {
+      background-color: var(--apple-gray-800);
+      border-left: 4px solid var(--apple-gray-700);
+    }
+    
+    .alert-warning {
+      background-color: #FFFBEB;
+      border-left: 4px solid #FF9500;
+    }
+    
+    .dark .alert-warning {
+      background-color: rgba(255, 149, 0, 0.2);
+      border-left: 4px solid #FF9500;
+    }
+    
+    /* 手风琴样式 */
+    details {
+      margin-bottom: 0.5rem;
+    }
+    
+    summary {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    summary:hover {
+      color: var(--text-dark);
+    }
+    
+    .dark summary:hover {
+      color: var(--text-light);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .max-w-3xl {
+      max-width: 48rem;
+    }
+    
+    .mx-auto {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .z-50 {
+      z-index: 50;
+    }
+    
+    .z-60 {
+      z-index: 60;
+    }
+    
+    /* 帮助提示 */
+    .help-step {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .help-step::before {
+      content: counter(step);
+      counter-increment: step;
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: bold;
+    }
+    
+    .help-steps {
+      counter-reset: step;
+    }
+    
+    /* 富文本编辑器工具栏 */
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 5px;
+      background-color: var(--apple-gray-50);
+      border: 1px solid var(--apple-gray-200);
+      border-bottom: none;
+      border-radius: var(--apple-small-radius) var(--apple-small-radius) 0 0;
+    }
+    
+    .dark .editor-toolbar {
+      background-color: var(--apple-gray-800);
+      border-color: var(--apple-gray-700);
+    }
+    
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--apple-gray-700);
+    }
+    
+    .dark .toolbar-btn {
+      color: var(--apple-gray-300);
+    }
+    
+    .toolbar-btn:hover {
+      background-color: var(--apple-gray-200);
+    }
+    
+    .dark .toolbar-btn:hover {
+      background-color: var(--apple-gray-700);
+    }
+    
+    .toolbar-select {
+      height: 30px;
+      border: 1px solid var(--apple-gray-200);
+      border-radius: 3px;
+      background-color: white;
+      color: var(--apple-gray-900);
+      padding: 0 8px;
+      font-size: 14px;
+    }
+    
+    .dark .toolbar-select {
+      background-color: var(--apple-gray-800);
+      border-color: var(--apple-gray-700);
+      color: var(--apple-gray-100);
+    }
+    
+    .editor-content {
+      padding: 10px;
+      min-height: 200px;
+      border: 1px solid var(--apple-gray-200);
+      border-radius: 0 0 var(--apple-small-radius) var(--apple-small-radius);
+      background-color: white;
+      color: var(--apple-gray-900);
+    }
+    
+    .dark .editor-content {
+      background-color: var(--apple-gray-800);
+      border-color: var(--apple-gray-700);
+      color: var(--apple-gray-100);
+    }
+    
+    /* 暗黑模式下的卡片 */
+    .dark .card {
+      background-color: var(--apple-gray-900);
+      border-color: var(--apple-gray-800);
+    }
+    
+    .card {
+      background-color: white;
+      border: 1px solid var(--apple-gray-200);
+      border-radius: var(--apple-border-radius);
+      padding: 1rem;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .card {
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    /* 修正暗黑模式下的各种组件 */
+    .dark .border {
+      border-color: var(--apple-gray-800);
+    }
+    
+    .dark .text-gray-600, 
+    .dark .text-gray-500 {
+      color: var(--apple-gray-300);
+    }
+    
+    /* 表单组件 */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .color-preview {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid var(--apple-gray-200);
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    
+    .dark .color-preview {
+      border-color: var(--apple-gray-700);
+    }
+    
+    /* 上传进度指示器 */
+    .loader {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--text-dark);
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+    
+    .dark .loader {
+      border-color: var(--text-light);
+      border-bottom-color: transparent;
+    }
+    
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    /* 调整编辑模态框的高度，确保保存按钮可见 */
+    #edit-modal .bg-white,
+    #edit-modal .dark\:bg-gray-800 {
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    #edit-modal .p-6 {
+      flex: 1;
+      overflow-y: auto;
+      max-height: calc(90vh - 70px); /* 减去标题栏高度 */
+    }
+    
+    #edit-modal .flex.justify-between.items-center {
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      background-color: inherit;
+      z-index: 10;
+    }
+    
+    /* 让保存按钮始终在底部可见 */
+    #save-edit {
+      position: sticky;
+      bottom: 10px;
+      align-self: flex-end;
+    }
+    
+    /* 边框和调整大小 */
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #fff;
+      border: 2px solid var(--text-dark);
+      border-radius: 50%;
+    }
+    
+    .dark .resize-handle {
+      border-color: white;
+    }
+    
+    .resize-handle-nw { 
+      top: -5px; 
+      left: -5px;
+      cursor: nw-resize;
+    }
+    
+    .resize-handle-ne { 
+      top: -5px; 
+      right: -5px;
+      cursor: ne-resize;
+    }
+    
+    .resize-handle-sw { 
+      bottom: -5px; 
+      left: -5px;
+      cursor: sw-resize;
+    }
+    
+    .resize-handle-se { 
+      bottom: -5px; 
+      right: -5px;
+      cursor: se-resize;
+    }
+    
+    /* 移动设备上的触摸适配 */
+    @media (max-width: 768px) {
+      .kv-guide-container {
+        flex-direction: column;
+      }
+      
+      .info-sidebar {
+        margin-top: 1rem;
+      }
+      
+      /* 在移动设备上显示提示文本 */
+      .mobile-hint {
+        display: block;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--apple-gray-500);
+        margin: 0.5rem 0;
+      }
+    }
+    
+    /* 管理员按钮和访问控制 */
+    .admin-toggle {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      background-color: var(--apple-gray-100);
+      color: var(--apple-gray-700);
+      cursor: pointer;
+      z-index: 40;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .admin-toggle {
+      background-color: var(--apple-gray-800);
+      color: var(--apple-gray-300);
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    .admin-toggle:hover {
+      background-color: var(--apple-gray-200);
+      transform: scale(1.05);
+    }
+    
+    .dark .admin-toggle:hover {
+      background-color: var(--apple-gray-700);
+    }
+    
+    .admin-mode-active .admin-toggle {
+      background-color: #34C759;
+      color: white;
+    }
+    
+    .dark .admin-mode-active .admin-toggle {
+      background-color: #28A745;
+    }
+    
+    /* 管理员模式下的编辑按钮 */
+    .admin-controls {
+      display: none;
+    }
+    
+    .admin-mode-active .admin-controls {
+      display: block;
+    }
+    
+    /* 普通用户看不到的编辑按钮 */
+    .admin-only {
+      display: none;
+    }
+    
+    .admin-mode-active .admin-only {
+      display: inline-flex;
+    }
+
+    /* 空状态提示 */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 1rem;
+      opacity: 0.7;
+      font-size: 0.875rem;
+    }
+
+    .empty-state-icon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.5rem;
+      color: var(--apple-gray-400);
+    }
+
+    .empty-state-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--apple-gray-600);
+    }
+
+    .empty-state-description {
+      color: var(--apple-gray-500);
+      max-width: 400px;
+      margin: 0 auto 1rem;
+      font-size: 0.875rem;
+    }
+    
+    /* 底部操作区域 */
+    .bottom-actions {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.875rem;
+      color: var(--apple-gray-500);
+      text-align: center;
+    }
+    
+    .dark .bottom-actions {
+      border-color: var(--border-dark);
+    }
+    
+    .file-drop-area-minimal {
+      border: 1px dashed var(--apple-gray-300);
+      border-radius: var(--apple-border-radius);
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--apple-gray-500);
+      cursor: pointer;
+      margin: 0.75rem 0;
+    }
+    
+    .file-drop-area-minimal:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .dark .file-drop-area-minimal {
+      border-color: var(--apple-gray-700);
+      color: var(--apple-gray-400);
+    }
+    
+    .dark .file-drop-area-minimal:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* 版本历史控制 */
+    .version-history-btn {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--apple-gray-100);
+      color: var(--apple-gray-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 40;
+      transition: all 0.2s ease;
+      box-shadow: var(--apple-light-elevation);
+    }
+    
+    .dark .version-history-btn {
+      background-color: var(--apple-gray-800);
+      color: var(--apple-gray-300);
+      box-shadow: var(--apple-dark-elevation);
+    }
+    
+    .version-history-btn:hover {
+      transform: scale(1.05);
+      background-color: var(--apple-gray-200);
+    }
+    
+    .dark .version-history-btn:hover {
+      background-color: var(--apple-gray-700);
+    }
+    
+    .version-history-btn:active {
+      transform: scale(0.95);
+    }
+    
+    /* 历史记录表格样式 */
+    .version-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .version-table th {
+      background-color: var(--apple-gray-50);
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--apple-gray-200);
+    }
+    
+    .dark .version-table th {
+      background-color: var(--apple-gray-800);
+      border-bottom-color: var(--apple-gray-700);
+    }
+    
+    .version-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--apple-gray-200);
+      vertical-align: top;
+    }
+    
+    .dark .version-table td {
+      border-bottom-color: var(--apple-gray-700);
+    }
+    
+    .version-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .version-table tr:hover td {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .dark .version-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .version-table .editable {
+      background-color: rgba(0, 0, 0, 0.03);
+      border: 1px dashed var(--apple-gray-400);
+      min-height: 40px;
+      transition: all 0.2s ease;
+    }
+    
+    .dark .version-table .editable {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px dashed var(--apple-gray-600);
+    }
+    
+    .version-table .editable:focus {
+      outline: none;
+      border: 1px solid var(--apple-gray-500);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .version-table .editable:focus {
+      border-color: var(--apple-gray-500);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+    }
+    
+    .version-table .action-cell {
+      width: 90px;
+      text-align: center;
+    }
+    
+    .version-content-cell {
+      min-width: 200px;
+      max-width: 400px;
+    }
+    
+    /* 移动端调整 */
+    @media (max-width: 640px) {
+      .version-table th,
+      .version-table td {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+      }
+      
+      .version-content-cell {
+        min-width: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 主题切换按钮 -->
+  <button class="theme-toggle" id="theme-toggle" title="切换暗黑/亮色模式">
+    <!-- 亮色模式图标 - 初始显示 -->
+    <svg xmlns="http://www.w3.org/2000/svg" id="light-icon" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+    </svg>
+    <!-- 暗色模式图标 - 初始隐藏 -->
+    <svg xmlns="http://www.w3.org/2000/svg" id="dark-icon" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor" style="width: 1.25rem; height: 1.25rem;">
+      <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+    </svg>
+  </button>
+
+  <!-- 管理员模式切换按钮 -->
+  <button class="admin-toggle" id="admin-toggle" title="管理员模式">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+    </svg>
+  </button>
+  
+  <!-- 版本历史按钮 -->
+  <button class="version-history-btn" id="version-history-btn" title="版本历史">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+    </svg>
+  </button>
+
+  <div class="container">
+    <!-- 可编辑标题 -->
+    <div class="title-container">
+      <h1 id="main-title">KV规范指南</h1>
+      <button id="edit-title-btn" class="title-edit-btn admin-only" title="编辑标题">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div id="content-area">
+      <!-- 主界面 - KV展示区 -->
+      <div id="kv-section">
+        <!-- 双列布局 -->
+        <div class="kv-guide-container">
+          <!-- 左侧图片部分 -->
+          <div class="kv-image-section">
+            <div class="kv-container bg-white dark:bg-gray-800 rounded-lg shadow-lg mb-4 relative overflow-hidden">
+              <!-- 背景图片 -->
+              <img id="kv-background" src="#" alt="产品KV图" style="width: 100%; height: 100%; object-fit: contain; position: absolute; inset: 0;">
+              
+              <!-- 正常模式下显示的高亮区域容器 -->
+              <div id="viewing-container" class="absolute inset-0"></div>
+              
+              <!-- 编辑模式下显示的高亮区域容器 -->
+              <div id="editing-container" class="absolute inset-0 hidden"></div>
+            </div>
+            
+            <p class="text-center mobile-hint mb-2">
+              <span class="text-primary dark:text-primary">在图片上悬停并点击可锁定查看各部分规范</span><br>
+              <small>(移动设备上点击即可)</small>
+            </p>
+          </div>
+          
+          <!-- 右侧信息部分 -->
+          <div class="kv-info-section">
+            <div class="info-sidebar">
+              <div class="flex justify-between items-center mb-2">
+                <h3 class="info-sidebar-title" id="info-title">产品规范</h3>
+                <button id="edit-area-content" class="btn btn-primary btn-sm hidden admin-only">
+                  编辑内容
+                </button>
+              </div>
+              <div id="info-content" class="info-sidebar-content">
+                <div class="info-default">
+                  <p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 编辑模式切换按钮 - 仅管理员可见 -->
+        <div class="text-center mb-6 admin-controls">
+          <button id="toggle-edit-mode" class="btn btn-primary px-6 py-2 mb-2">进入高亮区域编辑模式</button>
+          <div id="edit-controls" class="hidden mb-2">
+            <button id="add-hotspot" class="btn btn-green">添加新高亮区域</button>
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">提示：点击"×"可删除高亮区域</span>
+          </div>
+        </div>
+        
+        <!-- 导出/导入按钮 - 仅管理员可见 -->
+        <div class="flex justify-center gap-4 mb-8 flex-wrap admin-controls">
+          <button id="export-settings" class="btn btn-default">导出规范设置</button>
+          <button id="import-settings" class="btn btn-default">导入规范设置</button>
+          <button id="download-html" class="btn btn-primary">下载完整HTML</button>
+          <button id="export-html-data" class="btn btn-primary">获取HTML数据</button>
+        </div>
+        
+        <!-- 使用帮助 - 仅管理员可见 -->
+        <div class="alert alert-default max-w-3xl mx-auto admin-controls">
+          <div>
+            <h3 class="font-medium text-lg mb-2">管理员功能说明</h3>
+            <ol class="list-decimal pl-5 space-y-2 text-gray-600 dark:text-gray-400 help-steps">
+              <li class="help-step">点击"进入高亮区域编辑模式"可以编辑各区域的位置和大小</li>
+              <li class="help-step">使用"导出规范设置"保存当前配置</li>
+              <li class="help-step">使用"导入规范设置"恢复之前的配置</li>
+              <li class="help-step">使用"下载完整HTML"获取包含当前配置的完整HTML文件</li>
+            </ol>
+          </div>
+        </div>
+        
+        <!-- 底部区域 - 更低调的空状态提示和上传区域 -->
+        <div class="bottom-actions" id="bottom-actions">
+          <!-- 初始空状态 - 在没有图片/配置时显示，样式更低调 -->
+          <div id="empty-state" class="empty-state hidden">
+            <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="empty-state-title">暂无KV规范数据</h3>
+            <p class="empty-state-description">管理员需要上传KV图片并设置高亮区域</p>
+            <button id="login-to-upload" class="btn btn-primary btn-sm">以管理员身份登录</button>
+          </div>
+          
+          <!-- 图片上传区域 - 低调版，仅管理员可见 -->
+          <div id="upload-section" class="admin-controls hidden">
+            <div class="file-drop-area-minimal">
+              <input type="file" id="kv-file-input" class="file-input" accept="image/*">
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p>点击选择产品KV图片或将图片拖放到这里</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 内容编辑模态框 -->
+    <div id="edit-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-4xl w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">编辑规范内容</h3>
+          <div class="flex gap-2">
+            <button id="save-edit" class="btn btn-primary flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              保存
+            </button>
+            <button id="close-edit-modal" class="close-button">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">规范标题</label>
+            <input type="text" id="edit-title" class="w-full rounded-md px-3 py-2 text-base">
+          </div>
+          
+          <!-- 切换按钮 -->
+          <div class="mb-4 flex">
+            <button id="visual-editor-tab" class="btn px-4 py-2 bg-primary text-white">可视化编辑</button>
+            <button id="html-editor-tab" class="btn px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">HTML编辑</button>
+          </div>
+          
+          <!-- 可视化编辑模式 -->
+          <div id="visual-editor" class="mb-4">
+            <div id="editor-sections" class="space-y-4"></div>
+            
+            <!-- 添加新部分 -->
+            <div class="mt-4">
+              <button id="add-section" class="btn btn-default btn-sm">添加新部分</button>
+              <div id="section-type-menu" class="hidden mt-2 p-2 border rounded-md bg-white dark:bg-gray-800 space-y-1">
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="heading">标题</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="paragraph">段落</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="list">列表</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="card">卡片</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="grid">网格布局</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="details">折叠面板</button>
+                <button class="add-section-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="alert">提示框</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- HTML编辑模式 -->
+          <div id="html-editor" class="hidden">
+            <label class="block text-sm font-medium mb-1">规范内容 (HTML)</label>
+            <textarea id="edit-content-textarea" class="w-full rounded-md px-3 py-2 text-base" style="height: 18rem; font-family: monospace;"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 新建高亮区域模态框 -->
+    <div id="new-hotspot-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-md w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">添加新高亮区域</h3>
+          <button id="close-new-hotspot-modal" class="close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <form id="new-hotspot-form">
+            <div class="mb-4">
+              <label for="hotspot-id" class="block text-sm font-medium mb-1">区域ID</label>
+              <input type="text" id="hotspot-id" class="w-full rounded-md px-3 py-2 text-base" placeholder="例如: logo, product-name">
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">只能包含字母、数字、连字符和下划线</p>
+            </div>
+            
+            <div class="mb-4">
+              <label for="hotspot-tooltip" class="block text-sm font-medium mb-1">区域提示文字</label>
+              <input type="text" id="hotspot-tooltip" class="w-full rounded-md px-3 py-2 text-base" placeholder="例如: Logo, 产品名称">
+            </div>
+            
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="hotspot-x" class="block text-sm font-medium mb-1">X位置 (%)</label>
+                <input type="number" id="hotspot-x" class="w-full rounded-md px-3 py-2 text-base" min="0" max="100" value="50">
+              </div>
+              <div>
+                <label for="hotspot-y" class="block text-sm font-medium mb-1">Y位置 (%)</label>
+                <input type="number" id="hotspot-y" class="w-full rounded-md px-3 py-2 text-base" min="0" max="100" value="50">
+              </div>
+            </div>
+            
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="hotspot-width" class="block text-sm font-medium mb-1">宽度 (%)</label>
+                <input type="number" id="hotspot-width" class="w-full rounded-md px-3 py-2 text-base" min="1" max="100" value="10">
+              </div>
+              <div>
+                <label for="hotspot-height" class="block text-sm font-medium mb-1">高度 (%)</label>
+                <input type="number" id="hotspot-height" class="w-full rounded-md px-3 py-2 text-base" min="1" max="100" value="10">
+              </div>
+            </div>
+            
+            <div class="flex justify-end mt-6">
+              <button type="button" id="create-hotspot" class="btn btn-primary">创建高亮区域</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 导入设置模态框 -->
+    <div id="import-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-2xl w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">导入设置</h3>
+          <button id="close-import-modal" class="close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">请粘贴之前导出的JSON设置数据：</p>
+          <textarea id="import-json" class="w-full rounded-md px-3 py-2 text-base" style="height: 15rem; font-family: monospace;"></textarea>
+          <div class="mt-4 flex justify-end">
+            <button id="apply-import" class="btn btn-primary">应用设置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 导出设置模态框 -->
+    <div id="export-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-2xl w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">导出设置</h3>
+          <button id="close-export-modal" class="close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">复制以下JSON数据以保存您的设置：</p>
+          <textarea id="export-json" class="w-full rounded-md px-3 py-2 text-base" style="height: 15rem; font-family: monospace;" readonly=""></textarea>
+          <div class="mt-4 flex justify-end">
+            <button id="copy-export" class="btn btn-primary">复制到剪贴板</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- HTML 数据导出模态框 -->
+    <div id="html-export-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-2xl w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">HTML数据</h3>
+          <button id="close-html-export-modal" class="close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">请按照以下步骤操作：</p>
+          <ol class="list-decimal pl-5 mb-4 text-sm">
+            <li class="mb-2">复制下面的内容</li>
+            <li class="mb-2">在您的电脑上新建一个文本文件</li>
+            <li class="mb-2">粘贴内容并保存为"KV规范指南.html"</li>
+            <li>双击该HTML文件即可在任何设备上运行</li>
+          </ol>
+          <textarea id="html-export-json" class="w-full rounded-md px-3 py-2 text-base" style="height: 15rem; font-family: monospace; font-size: 0.75rem;" readonly=""></textarea>
+          <div class="mt-4 flex justify-end">
+            <button id="copy-html-export" class="btn btn-primary">复制到剪贴板</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 管理员登录模态框 -->
+    <div id="admin-login-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-md w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">管理员登录</h3>
+          <button id="close-admin-login-modal" class="close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <div class="mb-6">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">请输入管理员密码以启用编辑功能：</p>
+            <div class="mb-4">
+              <label for="admin-password" class="block text-sm font-medium mb-1">管理员密码</label>
+              <input type="password" id="admin-password" class="w-full rounded-md px-3 py-2 text-base" placeholder="请输入密码">
+              <p id="admin-login-error" class="text-red-500 text-sm mt-1 hidden">密码错误，请重试</p>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button id="admin-login-btn" class="btn btn-primary">登录</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 版本历史模态框 -->
+    <div id="version-history-modal" class="modal z-60">
+      <div class="bg-white dark:bg-gray-800 max-w-4xl w-full rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex justify-between items-center p-4 border-b border" style="border-color: var(--border-light);">
+          <h3 class="text-xl font-bold text-primary">版本历史记录</h3>
+          <div class="flex gap-2">
+            <button id="save-version-history" class="btn btn-primary flex items-center admin-only">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              保存
+            </button>
+            <button id="add-version-entry" class="btn btn-green flex items-center admin-only">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              添加记录
+            </button>
+            <button id="close-version-history-modal" class="close-button">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="mb-4">
+            <div class="overflow-x-auto">
+              <table id="version-table" class="version-table">
+                <thead>
+                  <tr>
+                    <th width="35%">更新内容</th>
+                    <th width="25%">更新时间</th>
+                    <th width="25%">修订人</th>
+                    <th width="15%" class="admin-only action-cell">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="version-table-body">
+                  <!-- 历史记录将在这里动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            <div id="no-version-history" class="text-center p-4 text-gray-500 dark:text-gray-400">
+              <p>暂无版本历史记录</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log("初始化KV规范指南应用");
+    
+    // 全局变量，存储用户选择的图片
+    let selectedImage = null;
+    
+    // 管理员密码
+    const ADMIN_PASSWORD = "admin123"; // 您可以修改为更安全的密码
+    
+    // 管理员模式状态
+    let isAdminMode = false;
+    
+    // 本地存储键名
+    const STORAGE_KEY = "kv_guide_settings";
+    const TITLE_KEY = "kv_guide_title";
+    const VERSION_HISTORY_KEY = "kv_guide_version_history";
+    
+    // 版本历史数据结构
+    let versionHistory = [];
+    
+    // 初始化全局数据结构 - 防止bug初始化
+    let guidelines = {};
+    let hotspots = {};
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("DOM已加载完成");
+      
+      // 获取元素
+      const uploadSection = document.getElementById('upload-section');
+      const kvSection = document.getElementById('kv-section');
+      const emptyState = document.getElementById('empty-state');
+      const fileDropArea = document.querySelector('.file-drop-area-minimal');
+      const fileInput = document.getElementById('kv-file-input');
+      const kvBackground = document.getElementById('kv-background');
+      const kvContainer = document.querySelector('.kv-container');
+      const viewingContainer = document.getElementById('viewing-container');
+      const editingContainer = document.getElementById('editing-container');
+      const toggleEditModeBtn = document.getElementById('toggle-edit-mode');
+      const editControls = document.getElementById('edit-controls');
+      const addHotspotBtn = document.getElementById('add-hotspot');
+      const downloadHtmlBtn = document.getElementById('download-html');
+      const exportHtmlDataBtn = document.getElementById('export-html-data');
+      const loginToUploadBtn = document.getElementById('login-to-upload');
+      const bottomActions = document.getElementById('bottom-actions');
+      
+      // 标题编辑相关元素
+      const mainTitle = document.getElementById('main-title');
+      const editTitleBtn = document.getElementById('edit-title-btn');
+      
+      // 管理员相关元素
+      const adminToggle = document.getElementById('admin-toggle');
+      const adminLoginModal = document.getElementById('admin-login-modal');
+      const adminPassword = document.getElementById('admin-password');
+      const adminLoginBtn = document.getElementById('admin-login-btn');
+      const adminLoginError = document.getElementById('admin-login-error');
+      const closeAdminLoginModal = document.getElementById('close-admin-login-modal');
+      
+      // 信息侧栏元素
+      const infoTitle = document.getElementById('info-title');
+      const infoContent = document.getElementById('info-content');
+      const editAreaContentBtn = document.getElementById('edit-area-content');
+      
+      // 新增高亮区域相关元素
+      const newHotspotModal = document.getElementById('new-hotspot-modal');
+      const closeNewHotspotModal = document.getElementById('close-new-hotspot-modal');
+      const newHotspotForm = document.getElementById('new-hotspot-form');
+      const hotspotId = document.getElementById('hotspot-id');
+      const hotspotTooltip = document.getElementById('hotspot-tooltip');
+      const hotspotX = document.getElementById('hotspot-x');
+      const hotspotY = document.getElementById('hotspot-y');
+      const hotspotWidth = document.getElementById('hotspot-width');
+      const hotspotHeight = document.getElementById('hotspot-height');
+      const createHotspotBtn = document.getElementById('create-hotspot');
+      
+      // 编辑模式相关元素
+      const editModal = document.getElementById('edit-modal');
+      const editTitle = document.getElementById('edit-title');
+      const editContentTextarea = document.getElementById('edit-content-textarea');
+      const saveEditBtn = document.getElementById('save-edit');
+      const closeEditModal = document.getElementById('close-edit-modal');
+      
+      // 编辑器切换选项卡
+      const visualEditorTab = document.getElementById('visual-editor-tab');
+      const htmlEditorTab = document.getElementById('html-editor-tab');
+      const visualEditor = document.getElementById('visual-editor');
+      const htmlEditor = document.getElementById('html-editor');
+      const editorSections = document.getElementById('editor-sections');
+      
+      // 添加部分相关元素
+      const addSectionBtn = document.getElementById('add-section');
+      const sectionTypeMenu = document.getElementById('section-type-menu');
+      const addSectionBtns = document.querySelectorAll('.add-section-btn');
+      
+      // 导入/导出相关元素
+      const importModal = document.getElementById('import-modal');
+      const closeImportModal = document.getElementById('close-import-modal');
+      const importJson = document.getElementById('import-json');
+      const applyImportBtn = document.getElementById('apply-import');
+      
+      const exportModal = document.getElementById('export-modal');
+      const closeExportModal = document.getElementById('close-export-modal');
+      const exportJson = document.getElementById('export-json');
+      const copyExportBtn = document.getElementById('copy-export');
+      
+      // HTML导出相关元素
+      const htmlExportModal = document.getElementById('html-export-modal');
+      const closeHtmlExportModal = document.getElementById('close-html-export-modal');
+      const htmlExportJson = document.getElementById('html-export-json');
+      const copyHtmlExportBtn = document.getElementById('copy-html-export');
+      
+      // 导出/导入按钮
+      const exportSettingsBtn = document.getElementById('export-settings');
+      const importSettingsBtn = document.getElementById('import-settings');
+      
+      // 主题切换按钮
+      const themeToggle = document.getElementById('theme-toggle');
+      const lightIcon = document.getElementById('light-icon');
+      const darkIcon = document.getElementById('dark-icon');
+      
+      // 版本历史按钮和模态框
+      const versionHistoryBtn = document.getElementById('version-history-btn');
+      const versionHistoryModal = document.getElementById('version-history-modal');
+      const closeVersionHistoryModal = document.getElementById('close-version-history-modal');
+      const versionTableBody = document.getElementById('version-table-body');
+      const noVersionHistory = document.getElementById('no-version-history');
+      const saveVersionHistoryBtn = document.getElementById('save-version-history');
+      const addVersionEntryBtn = document.getElementById('add-version-entry');
+      
+      // 编辑模式标志
+      let isEditMode = false;
+      
+      // 当前编辑的元素ID
+      let currentEditElementId = '';
+      
+      // 当前编辑的内容结构（用于可视化编辑器）
+      let currentEditStructure = [];
+      
+      // 当前激活的区域ID
+      let activeHighlightArea = null;
+      
+      // 是否锁定高亮区域
+      let isAreaLocked = false;
+      
+      // 检测是否是移动设备
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      // 是否在Poe平台内运行
+      const isPoeEnvironment = window.location.hostname.includes("poe.com");
+      
+      // 初始化函数 - 检查是否有已保存的图片和配置
+      function initApplication() {
+        console.log("正在初始化应用...");
+        
+        // 先从localStorage加载数据
+        loadSettingsFromStorage();
+        
+        // 加载标题
+        loadTitle();
+        
+        // 加载版本历史
+        loadVersionHistory();
+        
+        // 检查是否有配置数据
+        if (selectedImage) {
+          // 已有图片，显示KV区域，隐藏空状态
+          emptyState.classList.add('hidden');
+          kvBackground.src = selectedImage;
+          
+          // 确保图片加载完成后渲染热区
+          kvBackground.onload = function() {
+            console.log("图片加载完成，准备渲染热区");
+            setTimeout(renderViewingAreas, 100);
+          };
+          
+          // 如果图片已经加载完成则直接渲染
+          if (kvBackground.complete) {
+            console.log("图片已经加载完成，直接渲染热区");
+            setTimeout(renderViewingAreas, 100);
+          }
+        } else {
+          // 没有图片，显示空状态
+          emptyState.classList.remove('hidden');
+        }
+        
+        // 添加调试信息，检查是否为Poe环境
+        console.log("运行环境检查: " + (isPoeEnvironment ? "Poe平台内" : "独立HTML文件"));
+      }
+      
+      // 加载标题
+      function loadTitle() {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const savedTitle = localStorage.getItem(TITLE_KEY);
+            if (savedTitle) {
+              mainTitle.textContent = savedTitle;
+            }
+          }
+        } catch (e) {
+          console.log('无法从localStorage加载标题，使用默认标题');
+        }
+      }
+      
+      // 获取保存的主题偏好
+      function getSavedTheme() {
+        // 首先尝试检测系统偏好
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 然后尝试从localStorage中获取，如果不可用就使用系统偏好
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) return storedTheme;
+          }
+        } catch (e) {
+          console.log('无法访问localStorage，使用系统颜色偏好');
+        }
+        
+        return prefersDark ? 'dark' : 'light';
+      }
+      
+      // 初始化主题
+      function initTheme() {
+        const savedTheme = getSavedTheme();
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark');
+        } else {
+          document.body.classList.remove('dark');
+        }
+        updateThemeIcon();
+      }
+      
+      // 更新主题图标
+      function updateThemeIcon() {
+        if (document.body.classList.contains('dark')) {
+          darkIcon.classList.add('hidden');
+          lightIcon.classList.remove('hidden');
+        } else {
+          darkIcon.classList.remove('hidden');
+          lightIcon.classList.add('hidden');
+        }
+      }
+      
+      // 标题编辑功能
+      let isEditingTitle = false;
+      
+      editTitleBtn.addEventListener('click', () => {
+        if (!isAdminMode) return;
+        
+        if (!isEditingTitle) {
+          // 进入编辑模式
+          isEditingTitle = true;
+          const currentTitle = mainTitle.textContent;
+          
+          // 替换为输入框
+          mainTitle.innerHTML = `<input type="text" id="title-input" class="editable-title" value="${currentTitle}" style="font-size: inherit; text-align: center; font-weight: inherit;">`;
+          
+          // 获取输入框并聚焦
+          const titleInput = document.getElementById('title-input');
+          titleInput.focus();
+          
+          // 监听按键事件
+          titleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              saveTitle();
+            } else if (e.key === 'Escape') {
+              cancelTitleEdit();
+            }
+          });
+          
+          // 监听失去焦点事件
+          titleInput.addEventListener('blur', saveTitle);
+          
+          // 更改按钮图标为保存
+          editTitleBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          `;
+        } else {
+          // 保存编辑
+          saveTitle();
+        }
+      });
+      
+      function saveTitle() {
+        if (!isEditingTitle) return;
+        
+        const titleInput = document.getElementById('title-input');
+        if (!titleInput) return;
+        
+        const newTitle = titleInput.value.trim() || "KV规范指南";
+        mainTitle.textContent = newTitle;
+        
+        // 保存到本地存储
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(TITLE_KEY, newTitle);
+          }
+        } catch (e) {
+          console.log('无法保存标题到localStorage');
+        }
+        
+        // 重置编辑状态
+        isEditingTitle = false;
+        
+        // 恢复按钮图标
+        editTitleBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          </svg>
+        `;
+      }
+      
+      function cancelTitleEdit() {
+        if (!isEditingTitle) return;
+        
+        // 尝试从localStorage加载
+        let savedTitle = "KV规范指南";
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const storedTitle = localStorage.getItem(TITLE_KEY);
+            if (storedTitle) savedTitle = storedTitle;
+          }
+        } catch (e) {
+          // 使用默认标题
+        }
+        
+        // 恢复原标题
+        mainTitle.textContent = savedTitle;
+        
+        // 重置编辑状态
+        isEditingTitle = false;
+        
+        // 恢复按钮图标
+        editTitleBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          </svg>
+        `;
+      }
+      
+      // 彻底重构的保存设置功能，确保数据完整性和持久化
+      function saveSettingsToStorage() {
+        console.log("==== 启动全局设置保存 ====");
+        
+        try {
+          // 检查是否支持localStorage
+          if (typeof localStorage === 'undefined') {
+            console.error("浏览器不支持localStorage，无法保存设置");
+            alert("警告：您的浏览器不支持本地存储，设置无法保存!");
+            return false;
+          }
+          
+          console.log("第1步：检查数据结构完整性");
+          // 检查并修复数据结构
+          if (!window.guidelines || typeof window.guidelines !== 'object') {
+            console.warn("⚠️ guidelines对象未初始化或损坏，重新创建...");
+            window.guidelines = {};
+          }
+          
+          if (!window.hotspots || typeof window.hotspots !== 'object') {
+            console.warn("⚠️ hotspots对象未初始化或损坏，重新创建...");
+            window.hotspots = {};
+          }
+          
+          console.log("第2步：创建深拷贝的数据结构");
+          
+          // 创建完全独立的数据副本 - 防止后续修改影响已保存数据
+          let hotspotsClone = {};
+          try {
+            Object.keys(window.hotspots).forEach(key => {
+              hotspotsClone[key] = JSON.parse(JSON.stringify(window.hotspots[key]));
+            });
+            console.log(`✅ 成功深拷贝 ${Object.keys(hotspotsClone).length} 个热区`);
+          } catch (err) {
+            console.error("热区数据深拷贝失败:", err);
+            alert("保存过程中出错：热区数据无法正确复制，请刷新页面重试");
+            return false;
+          }
+          
+          let guidelinesClone = {};
+          try {
+            Object.keys(window.guidelines).forEach(key => {
+              guidelinesClone[key] = JSON.parse(JSON.stringify(window.guidelines[key]));
+            });
+            console.log(`✅ 成功深拷贝 ${Object.keys(guidelinesClone).length} 个规范内容`);
+          } catch (err) {
+            console.error("规范内容深拷贝失败:", err);
+            alert("保存过程中出错：规范内容无法正确复制，请刷新页面重试");
+            return false;
+          }
+          
+          console.log("第3步：构建完整的存储对象");
+          // 将所有数据整合到一个对象
+          const settingsData = {
+            version: "2.0", // 版本标记
+            timestamp: new Date().toISOString(), // 保存时间
+            image: selectedImage,
+            hotspots: hotspotsClone,
+            guidelines: guidelinesClone
+          };
+          
+          // 内容审计 - 检查每个热区是否有对应的规范内容
+          console.log("第4步：数据完整性审计");
+          const hotspotKeys = Object.keys(hotspotsClone);
+          const guidelineKeys = Object.keys(guidelinesClone);
+          
+          // 检查是否每个热区都有规范内容
+          const missingGuidelines = hotspotKeys.filter(key => !guidelineKeys.includes(key));
+          if (missingGuidelines.length > 0) {
+            console.warn(`⚠️ 发现 ${missingGuidelines.length} 个热区没有对应的规范内容:`, missingGuidelines);
+            // 自动创建缺失的规范内容
+            missingGuidelines.forEach(key => {
+              guidelinesClone[key] = {
+                title: hotspotsClone[key]?.tooltip + " 规范" || "未命名规范",
+                content: `<div class="space-y-4"><p>这是自动创建的规范内容，请点击编辑按钮修改。</p></div>`
+              };
+            });
+            console.log("✅ 已自动修复数据缺失问题");
+          }
+          
+          // 移除没有对应热区的规范内容
+          const orphanedGuidelines = guidelineKeys.filter(key => !hotspotKeys.includes(key));
+          if (orphanedGuidelines.length > 0) {
+            console.warn(`⚠️ 发现 ${orphanedGuidelines.length} 个规范内容没有对应的热区:`, orphanedGuidelines);
+            
+            // 调用确保数据一致 - 可选是否移除
+            // orphanedGuidelines.forEach(key => delete guidelinesClone[key]);
+            // console.log("✅ 已清理孤立的规范内容");
+          }
+          
+          // 检查每个规范内容的结构完整性
+          let fixedGuidelines = 0;
+          Object.keys(guidelinesClone).forEach(key => {
+            const item = guidelinesClone[key];
+            if (!item.title) {
+              item.title = hotspotsClone[key]?.tooltip + " 规范" || "未命名规范";
+              fixedGuidelines++;
+            }
+            if (!item.content) {
+              item.content = `<div class="space-y-4"><p>暂无内容</p></div>`;
+              fixedGuidelines++;
+            }
+          });
+          
+          if (fixedGuidelines > 0) {
+            console.log(`✅ 已修复 ${fixedGuidelines} 个不完整的规范内容结构`);
+          }
+          
+          // 将修复后的数据保存回settingsData
+          settingsData.guidelines = guidelinesClone;
+          
+          console.log("第5步：执行实际存储操作");
+          try {
+            // 序列化并保存
+            const jsonString = JSON.stringify(settingsData);
+            localStorage.setItem(STORAGE_KEY, jsonString);
+            
+            // 验证存储是否成功 - 重新读取并检查
+            const storedJSON = localStorage.getItem(STORAGE_KEY);
+            if (!storedJSON) {
+              throw new Error("存储后无法读取数据，可能存储失败");
+            }
+            
+            try {
+              // 验证JSON完整性
+              JSON.parse(storedJSON);
+            } catch (jsonErr) {
+              throw new Error("存储的JSON格式无效: " + jsonErr.message);
+            }
+            
+            console.log(`✅ 保存成功！数据大小: ${Math.round(jsonString.length / 1024)} KB`);
+            
+            // 添加检查点 - 更新内存中的实际对象
+            window.guidelines = JSON.parse(JSON.stringify(guidelinesClone));
+            window.hotspots = JSON.parse(JSON.stringify(hotspotsClone));
+            
+            console.log("==== 设置保存完成 ====");
+            return true;
+          } catch (storageErr) {
+            console.error("存储过程失败:", storageErr);
+            
+            // 如果是存储限额问题
+            if (storageErr.name === 'QuotaExceededError' || 
+                storageErr.message.includes('quota') || 
+                storageErr.message.includes('storage')) {
+              alert("存储空间不足，无法保存设置！请尝试清理浏览器缓存。");
+            } else {
+              alert("保存设置时出错: " + storageErr.message);
+            }
+            return false;
+          }
+        } catch (error) {
+          console.error('保存设置过程中发生意外错误:', error);
+          alert("保存设置失败: " + error.message);
+          return false;
+        }
+      }
+      
+      // 完全重构的加载设置功能，增强错误处理和数据验证
+      function loadSettingsFromStorage() {
+        console.log("==== 开始从本地存储加载设置 ====");
+        
+        try {
+          // 检查是否支持localStorage
+          if (typeof localStorage === 'undefined') {
+            console.warn("浏览器不支持localStorage，将使用默认设置");
+            return false;
+          }
+          
+          // 从localStorage获取数据
+          const savedSettings = localStorage.getItem(STORAGE_KEY);
+          if (!savedSettings) {
+            console.log("找不到已保存的设置，将使用默认设置");
+            return false;
+          }
+          
+          // 尝试解析设置数据
+          let settings;
+          try {
+            settings = JSON.parse(savedSettings);
+          } catch (jsonError) {
+            console.error("解析设置JSON时出错:", jsonError);
+            
+            // 尝试恢复 - 查找单项目缓存
+            console.log("尝试从单项目缓存恢复数据...");
+            const recoveredItems = recoverItemsFromLocalStorage();
+            if (recoveredItems && Object.keys(recoveredItems).length > 0) {
+              console.log(`✅ 已从备用存储恢复 ${Object.keys(recoveredItems).length} 个内容项`);
+              
+              // 将恢复的项目合并到全局对象
+              Object.keys(recoveredItems).forEach(key => {
+                window.guidelines[key] = recoveredItems[key];
+              });
+              
+              // 如果有备用数据，则继续加载过程
+              return true;
+            }
+            
+            return false;
+          }
+          
+          console.log("成功解析设置数据，开始加载各部分...");
+          
+          // 恢复图片
+          if (settings.image) {
+            console.log("- 找到图片数据");
+            selectedImage = settings.image;
+          } else {
+            console.warn("- 未找到图片数据");
+          }
+          
+          // 恢复热区数据 - 使用深拷贝确保数据完整性
+          if (settings.hotspots && typeof settings.hotspots === 'object') {
+            try {
+              // 使用深拷贝确保数据完整性
+              const hotspotsKeys = Object.keys(settings.hotspots);
+              console.log(`- 找到热区数据: ${hotspotsKeys.length} 个高亮区域`);
+              
+              // 清空现有数据
+              window.hotspots = {};
+              
+              // 遍历并深拷贝每个热区
+              hotspotsKeys.forEach(key => {
+                if (settings.hotspots[key]) {
+                  try {
+                    // JSON转换确保深拷贝
+                    window.hotspots[key] = JSON.parse(JSON.stringify(settings.hotspots[key]));
+                  } catch (err) {
+                    // 如果深拷贝失败，则使用浅拷贝
+                    console.warn(`热区 ${key} 深拷贝失败，使用浅拷贝`);
+                    window.hotspots[key] = { ...settings.hotspots[key] };
+                  }
+                }
+              });
+            } catch (hotspotError) {
+              console.error("恢复热区数据失败:", hotspotError);
+              
+              // 使用备用方法加载
+              console.warn("使用备用方法恢复热区数据");
+              window.hotspots = {};
+              try {
+                Object.keys(settings.hotspots).forEach(key => {
+                  window.hotspots[key] = {};
+                  // 确保每个必需属性都存在
+                  window.hotspots[key].left = settings.hotspots[key].left || 0;
+                  window.hotspots[key].top = settings.hotspots[key].top || 0;
+                  window.hotspots[key].width = settings.hotspots[key].width || 10;
+                  window.hotspots[key].height = settings.hotspots[key].height || 10;
+                  window.hotspots[key].tooltip = settings.hotspots[key].tooltip || "未命名区域";
+                });
+              } catch (e) {
+                console.error("备用恢复热区失败");
+              }
+            }
+          } else {
+            console.warn("- 未找到有效的热区数据");
+          }
+          
+          // 恢复规范内容 - 使用深拷贝确保数据完整性
+          if (settings.guidelines && typeof settings.guidelines === 'object') {
+            try {
+              // 计数有效的规范内容
+              const guidelinesKeys = Object.keys(settings.guidelines);
+              console.log(`- 找到规范内容: ${guidelinesKeys.length} 个内容项`);
+              
+              // 清空现有数据
+              window.guidelines = {};
+              
+              // 遍历并深拷贝每个规范内容
+              guidelinesKeys.forEach(key => {
+                if (settings.guidelines[key]) {
+                  try {
+                    // JSON转换确保深拷贝
+                    window.guidelines[key] = JSON.parse(JSON.stringify(settings.guidelines[key]));
+                  } catch (err) {
+                    // 如果深拷贝失败，则使用浅拷贝
+                    console.warn(`规范 ${key} 深拷贝失败，使用浅拷贝`);
+                    window.guidelines[key] = { ...settings.guidelines[key] };
+                  }
+                  
+                  // 验证结构完整性
+                  if (!window.guidelines[key].title) {
+                    window.guidelines[key].title = window.hotspots[key]?.tooltip + " 规范" || "未命名规范";
+                  }
+                  if (!window.guidelines[key].content) {
+                    window.guidelines[key].content = "<div class='space-y-4'><p>暂无内容</p></div>";
+                  }
+                }
+              });
+              
+              console.log("规范内容加载成功");
+            } catch (guidelineError) {
+              console.error("恢复规范内容失败:", guidelineError);
+              
+              // 尝试从单项目缓存恢复
+              const recoveredItems = recoverItemsFromLocalStorage();
+              if (recoveredItems && Object.keys(recoveredItems).length > 0) {
+                console.log(`✅ 已从备用存储恢复 ${Object.keys(recoveredItems).length} 个内容项`);
+                
+                // 将恢复的项目合并到全局对象
+                Object.keys(recoveredItems).forEach(key => {
+                  window.guidelines[key] = recoveredItems[key];
+                });
+              }
+            }
+          } else {
+            console.warn("- 未找到有效的规范内容数据");
+          }
+          
+          // 检查数据一致性 - 确保每个热区都有对应的规范内容
+          try {
+            const hotspotKeys = Object.keys(window.hotspots);
+            const guidelineKeys = Object.keys(window.guidelines);
+            
+            // 找出没有规范内容的热区
+            const missingGuidelines = hotspotKeys.filter(key => !guidelineKeys.includes(key));
+            if (missingGuidelines.length > 0) {
+              console.warn(`发现 ${missingGuidelines.length} 个热区没有对应的规范内容，将自动创建`);
+              
+              // 为每个缺失的规范创建默认内容
+              missingGuidelines.forEach(key => {
+                window.guidelines[key] = {
+                  title: window.hotspots[key]?.tooltip + " 规范" || "未命名规范",
+                  content: `<div class="space-y-4"><p>这是自动创建的规范内容，请点击编辑按钮修改。</p></div>`
+                };
+              });
+            }
+            
+            // 提供数据状态统计
+            console.log("数据加载统计:");
+            console.log(`- 热区: ${Object.keys(window.hotspots).length} 个`);
+            console.log(`- 规范内容: ${Object.keys(window.guidelines).length} 个`);
+            console.log("- 图片数据: " + (selectedImage ? "已加载" : "未加载"));
+          } catch (consistencyError) {
+            console.error("检查数据一致性失败:", consistencyError);
+          }
+          
+          console.log('==== 设置加载完成 ====');
+          return true;
+        } catch (error) {
+          console.error('加载设置失败:', error);
+          return false;
+        }
+      }
+      
+      // 从单独存储的项目中恢复数据
+      function recoverItemsFromLocalStorage() {
+        try {
+          // 寻找所有以"kv_guide_item_"开头的项目
+          const recoveredItems = {};
+          
+          if (typeof localStorage !== 'undefined') {
+            // 遍历localStorage中的所有键
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith("kv_guide_item_")) {
+                try {
+                  // 提取ID
+                  const itemId = key.replace("kv_guide_item_", "");
+                  // 解析项目内容
+                  const itemData = JSON.parse(localStorage.getItem(key));
+                  
+                  // 如果有效，则添加到恢复项目中
+                  if (itemData && itemData.title && itemData.content) {
+                    recoveredItems[itemId] = {
+                      title: itemData.title,
+                      content: itemData.content
+                    };
+                  }
+                } catch (e) {
+                  console.warn(`解析项目 ${key} 失败`, e);
+                }
+              }
+            }
+          }
+          
+          return recoveredItems;
+        } catch (error) {
+          console.error("从单独存储恢复失败:", error);
+          return {};
+        }
+      }
+      
+      // 空状态中的登录按钮点击事件
+      loginToUploadBtn.addEventListener('click', () => {
+        adminLoginModal.classList.add('active');
+        adminPassword.focus();
+      });
+      
+      // 管理员模式初始化
+      adminToggle.addEventListener('click', () => {
+        if (isAdminMode) {
+          // 如果已经是管理员模式，则退出
+          exitAdminMode();
+        } else {
+          // 显示登录模态框
+          adminLoginModal.classList.add('active');
+          adminPassword.focus();
+        }
+      });
+      
+      // 管理员登录
+      adminLoginBtn.addEventListener('click', () => {
+        if (adminPassword.value === ADMIN_PASSWORD) {
+          enterAdminMode();
+          adminLoginModal.classList.remove('active');
+          adminPassword.value = '';
+          adminLoginError.classList.add('hidden');
+        } else {
+          adminLoginError.classList.remove('hidden');
+        }
+      });
+      
+      // 管理员密码输入框回车键事件
+      adminPassword.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          adminLoginBtn.click();
+        }
+      });
+      
+      // 关闭管理员登录模态框
+      closeAdminLoginModal.addEventListener('click', () => {
+        adminLoginModal.classList.remove('active');
+        adminPassword.value = '';
+        adminLoginError.classList.add('hidden');
+      });
+      
+      // 进入管理员模式
+      function enterAdminMode() {
+        isAdminMode = true;
+        document.body.classList.add('admin-mode-active');
+        console.log('进入管理员模式');
+        
+        // 显示上传区域（如果还没有图片）
+        if (!selectedImage) {
+          uploadSection.classList.remove('hidden');
+        } else {
+          uploadSection.classList.remove('hidden');
+        }
+      }
+      
+      // 退出管理员模式
+      function exitAdminMode() {
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode-active');
+        
+        // 如果在编辑模式，也需要退出
+        if (isEditMode) {
+          toggleEditModeBtn.click();
+        }
+        
+        // 隐藏上传区域
+        uploadSection.classList.add('hidden');
+        
+        console.log('退出管理员模式');
+      }
+      
+      // 版本历史功能
+      versionHistoryBtn.addEventListener('click', () => {
+        loadVersionHistory();
+        renderVersionHistory();
+        versionHistoryModal.classList.add('active');
+      });
+      
+      closeVersionHistoryModal.addEventListener('click', () => {
+        versionHistoryModal.classList.remove('active');
+      });
+      
+      // 加载版本历史
+      function loadVersionHistory() {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const saved = localStorage.getItem(VERSION_HISTORY_KEY);
+            if (saved) {
+              versionHistory = JSON.parse(saved);
+            }
+          }
+        } catch (e) {
+          console.log('加载版本历史失败:', e);
+          versionHistory = [];
+        }
+      }
+      
+      // 添加版本历史记录
+      addVersionEntryBtn.addEventListener('click', () => {
+        if (!isAdminMode) return;
+        
+        // 获取当前日期
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(/\//g, '-');
+        
+        // 创建新记录
+        const newEntry = {
+          id: Date.now().toString(), // 唯一ID
+          content: "",
+          date: formattedDate,
+          author: "管理员"
+        };
+        
+        // 添加到数据中
+        versionHistory.unshift(newEntry); // 添加到开头
+        
+        // 更新显示
+        renderVersionHistory();
+        
+        // 焦点到第一个单元格
+        setTimeout(() => {
+          const firstCell = document.querySelector('#version-table-body tr:first-child td:first-child .editable');
+          if (firstCell) {
+            firstCell.focus();
+          }
+        }, 100);
+      });
+      
+      // 保存版本历史
+      saveVersionHistoryBtn.addEventListener('click', () => {
+        if (!isAdminMode) return;
+        
+        // 保存到localStorage
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(VERSION_HISTORY_KEY, JSON.stringify(versionHistory));
+            alert('版本历史已保存');
+          } else {
+            alert('浏览器不支持本地存储，无法保存版本历史');
+          }
+        } catch (e) {
+          console.log('保存版本历史失败:', e);
+          alert('保存失败: ' + e.message);
+        }
+      });
+      
+      // 渲染版本历史表格
+      function renderVersionHistory() {
+        if (!versionTableBody) return;
+        
+        versionTableBody.innerHTML = '';
+        
+        if (versionHistory.length === 0) {
+          noVersionHistory.style.display = 'block';
+        } else {
+          noVersionHistory.style.display = 'none';
+          
+          versionHistory.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            
+            // 更新内容
+            const contentCell = document.createElement('td');
+            contentCell.className = 'version-content-cell';
+            if (isAdminMode) {
+              const contentEditable = document.createElement('div');
+              contentEditable.className = 'editable';
+              contentEditable.contentEditable = true;
+              contentEditable.textContent = entry.content;
+              contentEditable.dataset.field = 'content';
+              contentEditable.dataset.index = index;
+              contentEditable.addEventListener('blur', updateVersionField);
+              contentCell.appendChild(contentEditable);
+            } else {
+              contentCell.textContent = entry.content;
+            }
+            row.appendChild(contentCell);
+            
+            // 更新时间
+            const dateCell = document.createElement('td');
+            if (isAdminMode) {
+              const dateEditable = document.createElement('div');
+              dateEditable.className = 'editable';
+              dateEditable.contentEditable = true;
+              dateEditable.textContent = entry.date;
+              dateEditable.dataset.field = 'date';
+              dateEditable.dataset.index = index;
+              dateEditable.addEventListener('blur', updateVersionField);
+              dateCell.appendChild(dateEditable);
+            } else {
+              dateCell.textContent = entry.date;
+            }
+            row.appendChild(dateCell);
+            
+            // 修订人
+            const authorCell = document.createElement('td');
+            if (isAdminMode) {
+              const authorEditable = document.createElement('div');
+              authorEditable.className = 'editable';
+              authorEditable.contentEditable = true;
+              authorEditable.textContent = entry.author;
+              authorEditable.dataset.field = 'author';
+              authorEditable.dataset.index = index;
+              authorEditable.addEventListener('blur', updateVersionField);
+              authorCell.appendChild(authorEditable);
+            } else {
+              authorCell.textContent = entry.author;
+            }
+            row.appendChild(authorCell);
+            
+            // 操作按钮 (仅管理员可见)
+            const actionCell = document.createElement('td');
+            actionCell.className = 'admin-only action-cell';
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-red btn-sm';
+            deleteBtn.innerHTML = '删除';
+            deleteBtn.dataset.index = index;
+            deleteBtn.addEventListener('click', deleteVersionEntry);
+            
+            actionCell.appendChild(deleteBtn);
+            row.appendChild(actionCell);
+            
+            versionTableBody.appendChild(row);
+          });
+        }
+      }
+      
+      // 更新版本历史字段
+      function updateVersionField(e) {
+        const field = e.target.dataset.field;
+        const index = parseInt(e.target.dataset.index);
+        const value = e.target.textContent.trim();
+        
+        if (index >= 0 && index < versionHistory.length) {
+          versionHistory[index][field] = value;
+        }
+      }
+      
+      // 删除版本历史条目
+      function deleteVersionEntry(e) {
+        const index = parseInt(e.target.dataset.index);
+        
+        if (confirm('确定要删除这条历史记录吗？')) {
+          if (index >= 0 && index < versionHistory.length) {
+            versionHistory.splice(index, 1);
+            renderVersionHistory();
+          }
+        }
+      }
+      
+      // 注册主题切换事件
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        updateThemeIcon();
+        
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+          }
+        } catch (e) {
+          console.log('无法保存主题设置到localStorage');
+        }
+      });
+      
+      // 图片上传处理
+      fileDropArea.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
+      fileInput.addEventListener('change', handleFiles);
+      
+      fileDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileDropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+      });
+      
+      fileDropArea.addEventListener('dragleave', () => {
+        fileDropArea.style.backgroundColor = '';
+      });
+      
+      fileDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileDropArea.style.backgroundColor = '';
+        if (e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          handleFiles();
+        }
+      });
+      
+      function handleFiles() {
+        const file = fileInput.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            selectedImage = e.target.result; // 存储图片数据
+            kvBackground.src = selectedImage;
+            emptyState.classList.add('hidden'); // 隐藏空状态
+            
+            // 延迟渲染热区，确保图片已完全加载
+            kvBackground.onload = function() {
+              console.log("图片加载完成，开始渲染高亮区域");
+              setTimeout(renderViewingAreas, 100);
+              
+              // 保存设置到本地存储
+              saveSettingsToStorage();
+            };
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+      
+      // 导出设置
+      exportSettingsBtn.addEventListener('click', () => {
+        // 确保是管理员模式
+        if (!isAdminMode) return;
+        
+        // 深拷贝所有数据
+        const exportData = {
+          image: selectedImage,
+          hotspots: {},
+          guidelines: {},
+          title: mainTitle.textContent,
+          versionHistory: JSON.parse(JSON.stringify(versionHistory))
+        };
+        
+        // 深拷贝hotspots对象
+        Object.keys(hotspots).forEach(key => {
+          exportData.hotspots[key] = { ...hotspots[key] };
+        });
+        
+        // 深拷贝guidelines对象
+        Object.keys(guidelines).forEach(key => {
+          exportData.guidelines[key] = { ...guidelines[key] };
+        });
+        
+        exportJson.value = JSON.stringify(exportData, null, 2);
+        exportModal.classList.add('active');
+      });
+      
+      // 复制导出数据
+      copyExportBtn.addEventListener('click', () => {
+        exportJson.select();
+        try {
+          document.execCommand('copy');
+          alert('已复制到剪贴板！');
+        } catch (err) {
+          console.log('复制失败:', err);
+          
+          // 尝试使用Clipboard API
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(exportJson.value)
+              .then(() => alert('已复制到剪贴板！'))
+              .catch(err => {
+                console.log('Clipboard API失败:', err);
+                alert('复制失败，请手动复制。');
+              });
+          } else {
+            alert('复制失败，请手动复制。');
+          }
+        }
+      });
+      
+      closeExportModal.addEventListener('click', () => {
+        exportModal.classList.remove('active');
+      });
+      
+      // 导入设置
+      importSettingsBtn.addEventListener('click', () => {
+        // 确保是管理员模式
+        if (!isAdminMode) return;
+        
+        importModal.classList.add('active');
+      });
+      
+      // 应用导入数据
+      applyImportBtn.addEventListener('click', () => {
+        try {
+          const imported = JSON.parse(importJson.value);
+          
+          // 导入图片
+          if (imported.image) {
+            selectedImage = imported.image;
+            kvBackground.src = selectedImage;
+            emptyState.classList.add('hidden'); // 隐藏空状态
+          }
+          
+          // 导入标题
+          if (imported.title) {
+            mainTitle.textContent = imported.title;
+            
+            try {
+              if (typeof localStorage !== 'undefined') {
+                localStorage.setItem(TITLE_KEY, imported.title);
+              }
+            } catch (e) {
+              console.log('无法保存标题到localStorage');
+            }
+          }
+          
+          // 导入版本历史
+          if (imported.versionHistory) {
+            versionHistory = JSON.parse(JSON.stringify(imported.versionHistory));
+            
+            try {
+              if (typeof localStorage !== 'undefined') {
+                localStorage.setItem(VERSION_HISTORY_KEY, JSON.stringify(versionHistory));
+              }
+            } catch (e) {
+              console.log('无法保存版本历史到localStorage');
+            }
+          }
+          
+          // 导入规范内容 - 使用深拷贝
+          if (imported.guidelines) {
+            Object.keys(imported.guidelines).forEach(key => {
+              guidelines[key] = { ...imported.guidelines[key] };
+            });
+          }
+          
+          // 导入热区数据 - 使用深拷贝
+          if (imported.hotspots) {
+            Object.keys(imported.hotspots).forEach(key => {
+              hotspots[key] = { ...imported.hotspots[key] };
+            });
+            
+            // 根据当前模式更新高亮区域
+            if (isEditMode) {
+              renderEditingAreas();
+            } else {
+              renderViewingAreas();
+            }
+          }
+          
+          // 保存设置到本地存储
+          saveSettingsToStorage();
+          
+          alert('设置已成功导入！');
+          importModal.classList.remove('active');
+        } catch (e) {
+          alert('导入失败！请检查JSON格式是否正确。');
+          console.log(e);
+        }
+      });
+      
+      closeImportModal.addEventListener('click', () => {
+        importModal.classList.remove('active');
+      });
+      
+      // 下载完整HTML功能
+      downloadHtmlBtn.addEventListener('click', function() {
+        try {
+          // 确保有图片和高亮区域数据
+          if (!selectedImage) {
+            alert('请先上传图片');
+            return;
+          }
+          
+          // 创建一个导出配置对象，确保数据是深拷贝
+          const exportConfig = {
+            image: selectedImage,
+            hotspots: {},
+            guidelines: {},
+            title: mainTitle.textContent,
+            versionHistory: JSON.parse(JSON.stringify(versionHistory))
+          };
+          
+          // 深拷贝hotspots对象
+          Object.keys(hotspots).forEach(key => {
+            exportConfig.hotspots[key] = JSON.parse(JSON.stringify(hotspots[key]));
+          });
+          
+          // 深拷贝guidelines对象
+          Object.keys(guidelines).forEach(key => {
+            exportConfig.guidelines[key] = JSON.parse(JSON.stringify(guidelines[key]));
+          });
+          
+          console.log("配置数据已准备", Object.keys(exportConfig.hotspots).length, "个热区");
+          
+          // 获取当前文档
+          const htmlContent = document.documentElement.outerHTML;
+          
+          // 在文档底部插入导出配置 - 增强版
+          const configScript = `
+            <script id="kv-guide-config-data">
+            // ===== KV规范指南配置数据 =====
+            // 导出时间: ${new Date().toISOString()}
+            // 版本: 2.0
+            
+            // 导出配置，包含图片数据和所有设置
+            window.kvGuideConfig = ${JSON.stringify(exportConfig)};
+            
+            // ===== 初始化函数 =====
+            function initKvGuide() {
+              console.log("KV规范指南: 初始化配置... (v2.0)");
+              
+              // 检查浏览器是否支持localStorage
+              let storageAvailable = false;
+              try {
+                storageAvailable = typeof localStorage !== 'undefined';
+                const x = '__storage_test__';
+                localStorage.setItem(x, x);
+                localStorage.removeItem(x);
+              } catch(e) {
+                storageAvailable = false;
+                console.warn("KV规范指南: 本地存储不可用，将使用内存存储");
+              }
+              
+              // 为简化重用，创建一个存储变量，当localStorage不可用时使用内存存储
+              window.kvStorage = storageAvailable ? localStorage : {
+                _data: {},
+                setItem: function(id, val) { this._data[id] = val; },
+                getItem: function(id) { return this._data[id] === undefined ? null : this._data[id]; },
+                removeItem: function(id) { delete this._data[id]; },
+                clear: function() { this._data = {}; }
+              };
+              
+              console.log("KV规范指南: 存储机制已初始化");
+              
+              // 确保全局变量初始化，避免依赖顺序问题
+              window.activeHighlightArea = null;
+              window.isAreaLocked = false;
+              
+              console.log("KV规范指南: 应用配置数据...");
+              if (window.kvGuideConfig) {
+                // 1. 设置图片
+                if (window.kvGuideConfig.image) {
+                  console.log("KV规范指南: 设置图片");
+                  selectedImage = window.kvGuideConfig.image;
+                  document.getElementById('kv-background').src = selectedImage;
+                  // 隐藏空状态
+                  document.getElementById('empty-state').classList.add('hidden');
+                }
+                
+                // 2. 设置高亮区域位置 - 确保深拷贝
+                if (window.kvGuideConfig.hotspots) {
+                  console.log("KV规范指南: 配置热区数据", Object.keys(window.kvGuideConfig.hotspots).length, "个热区");
+                  Object.keys(window.kvGuideConfig.hotspots).forEach(key => {
+                    hotspots[key] = JSON.parse(JSON.stringify(window.kvGuideConfig.hotspots[key]));
+                  });
+                  
+                  // 日志热区数据
+                  console.log("KV规范指南: 热区数据已加载");
+                }
+                
+                // 3. 设置规范内容 - 确保深拷贝
+                if (window.kvGuideConfig.guidelines) {
+                  console.log("KV规范指南: 配置规范内容");
+                  Object.keys(window.kvGuideConfig.guidelines).forEach(key => {
+                    guidelines[key] = JSON.parse(JSON.stringify(window.kvGuideConfig.guidelines[key]));
+                  });
+                }
+                
+                // 4. 设置标题
+                if (window.kvGuideConfig.title) {
+                  console.log("KV规范指南: 设置标题", window.kvGuideConfig.title);
+                  document.getElementById('main-title').textContent = window.kvGuideConfig.title;
+                  
+                  // 同时更新页面标题
+                  document.title = window.kvGuideConfig.title;
+                }
+                
+                // 5. 设置版本历史
+                if (window.kvGuideConfig.versionHistory) {
+                  console.log("KV规范指南: 配置版本历史");
+                  window.versionHistory = JSON.parse(JSON.stringify(window.kvGuideConfig.versionHistory));
+                }
+                
+                // 重要：确保图片加载完成后渲染高亮区域并绑定事件
+                const kvBackground = document.getElementById('kv-background');
+                
+                function initializeHighlightAreas() {
+                  console.log("KV规范指南: 图片已加载，初始化高亮区域");
+                  
+                  // 重置状态
+                  window.activeHighlightArea = null;
+                  window.isAreaLocked = false;
+                  
+                  // 重置侧边栏
+                  const infoTitle = document.getElementById('info-title');
+                  const infoContent = document.getElementById('info-content');
+                  if (infoTitle) infoTitle.textContent = '产品规范';
+                  if (infoContent) infoContent.innerHTML = '<div class="info-default"><p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p></div>';
+                  
+                  // 延迟渲染以确保DOM完全加载
+                  console.log("KV规范指南: 即将渲染热区");
+                  setTimeout(renderViewingAreas, 200);
+                  
+                  // 再次延迟检查，确保热区已正确渲染
+                  setTimeout(function() {
+                    console.log("KV规范指南: 检查热区是否已成功渲染");
+                    const areas = document.querySelectorAll('.highlight-area');
+                    console.log(\`KV规范指南: 检测到 \${areas.length} 个热区\`);
+                    
+                    if (areas.length === 0) {
+                      console.warn("KV规范指南: 未检测到热区，尝试重新渲染");
+                      renderViewingAreas();
+                    }
+                  }, 1000);
+                }
+                
+                // 图片加载完成时初始化
+                kvBackground.onload = function() {
+                  console.log("KV规范指南: 图片onload事件触发");
+                  initializeHighlightAreas();
+                };
+                
+                // 如果图片已经加载完成则直接初始化
+                if (kvBackground.complete) {
+                  console.log("KV规范指南: 图片已经加载完成，直接初始化");
+                  setTimeout(initializeHighlightAreas, 100);
+                } else {
+                  console.log("KV规范指南: 图片正在加载中...");
+                }
+              } else {
+                console.warn("KV规范指南: 未找到配置数据");
+              }
+            }
+            
+            // 页面加载完成后初始化
+            if (document.readyState === 'complete') {
+              console.log("KV规范指南: 页面已完全加载，立即初始化");
+              initKvGuide();
+            } else {
+              console.log("KV规范指南: 等待页面加载完成");
+              window.addEventListener('load', function() {
+                console.log("KV规范指南: 页面load事件触发，开始初始化");
+                initKvGuide();
+              });
+            }
+            <\/script>
+          `;
+          
+          // 创建修改后的HTML
+          let modifiedHtml = htmlContent;
+          if (modifiedHtml.includes('</body>')) {
+            modifiedHtml = modifiedHtml.replace('</body>', configScript + '</body>');
+          } else {
+            modifiedHtml += configScript;
+          }
+          
+          console.log("生成HTML内容完成", modifiedHtml.length, "字符");
+          
+          // 方法1：使用下载链接
+          try {
+            console.log("尝试使用Blob和createObjectURL下载");
+            const blob = new Blob([modifiedHtml], {type: 'text/html;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '规范指南_带热区功能.html';
+            a.style.display = 'none';
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              console.log("下载操作完成");
+              
+              // 提示用户正确的操作方法
+              alert('HTML文件已下载！\n\n重要提示：\n1. 双击打开下载的HTML文件\n2. 如果需要重新保存，请使用页面中的"下载完整HTML"按钮\n3. 不要使用浏览器的"另存为"功能');
+            }, 100);
+            return;
+          } catch (err) {
+            console.log("方法1失败:", err);
+          }
+          
+          // 备用方法：如果下载失败，显示HTML内容供手动复制
+          console.log("自动下载失败，显示备用方法");
+          htmlExportJson.value = modifiedHtml;
+          htmlExportModal.classList.add('active');
+          
+        } catch (error) {
+          console.log("下载HTML时出错:", error);
+          alert("下载出错: " + error.message + "\n请使用'获取HTML数据'按钮代替。");
+        }
+      });
+      
+      // HTML导出按钮
+      exportHtmlDataBtn.addEventListener('click', function() {
+        try {
+          const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+          htmlExportJson.value = document.documentElement.outerHTML;
+          htmlExportModal.classList.add('active');
+        } catch (error) {
+          console.error("获取HTML数据失败:", error);
+          alert("获取HTML数据失败: " + error.message);
+        }
+      });
+      
+      // 复制HTML数据
+      copyHtmlExportBtn.addEventListener('click', () => {
+        htmlExportJson.select();
+        try {
+          document.execCommand('copy');
+          alert('已复制到剪贴板！');
+        } catch (err) {
+          console.log('复制失败:', err);
+          
+          // 尝试使用Clipboard API
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(htmlExportJson.value)
+              .then(() => alert('已复制到剪贴板！'))
+              .catch(err => {
+                console.log('Clipboard API失败:', err);
+                alert('复制失败，请手动复制。');
+              });
+          } else {
+            alert('复制失败，请手动复制。');
+          }
+        }
+      });
+      
+      closeHtmlExportModal.addEventListener('click', () => {
+        htmlExportModal.classList.remove('active');
+      });
+      
+      // 高亮区域定义 - 基于新提供的底图更新
+      const hotspots = {
+        logo: {
+          left: 90,
+          top: 5,
+          width: 8,
+          height: 8,
+          tooltip: "Logo"
+        },
+        "product-name": {
+          left: 70,
+          top: 30,
+          width: 25,
+          height: 8,
+          tooltip: "Mate70系列"
+        },
+        "slogan": {
+          left: 70,
+          top: 40,
+          width: 25,
+          height: 8,
+          tooltip: "产品标语"
+        },
+        "camera-module": {
+          left: 22,
+          top: 30,
+          width: 22,
+          height: 22,
+          tooltip: "摄像头模组"
+        },
+        "xmage": {
+          left: 70,
+          top: 35,
+          width: 7,
+          height: 3,
+          tooltip: "XMAGE影像"
+        },
+        "feature-text": {
+          left: 65,
+          top: 48,
+          width: 35,
+          height: 4,
+          tooltip: "产品特性描述"
+        }
+      };
+      
+      // 渲染高亮区域函数 - 直接关联DOM元素和事件
+      function renderViewingAreas() {
+        console.log("正在渲染查看模式高亮区域...");
+        
+        // 清空之前的内容
+        viewingContainer.innerHTML = '';
+        
+        // 移除之前的背景点击事件
+        kvContainer.removeEventListener('click', clearAllHighlights);
+        
+        // 重置当前状态
+        activeHighlightArea = null;
+        isAreaLocked = false;
+        
+        // 重置侧边栏内容
+        infoTitle.textContent = '产品规范';
+        infoContent.innerHTML = '<div class="info-default"><p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p></div>';
+        
+        // 添加背景点击事件 - 解除锁定状态
+        kvContainer.addEventListener('click', clearAllHighlights);
+        
+        // 创建所有高亮区域元素
+        for (const id in hotspots) {
+          const spot = hotspots[id];
+          
+          // 创建高亮区域元素
+          const element = document.createElement('div');
+          
+          // 设置ID和样式
+          element.id = id;
+          element.className = 'highlight-area';
+          element.title = spot.tooltip;
+          element.dataset.areaId = id;
+          
+          // 设置位置和尺寸
+          element.style.left = `${spot.left}%`;
+          element.style.top = `${spot.top}%`;
+          element.style.width = `${spot.width}%`;
+          element.style.height = `${spot.height}%`;
+          
+          // 添加到容器
+          viewingContainer.appendChild(element);
+          
+          // 添加点击事件 - 锁定/解锁高亮区域
+          element.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log(`点击区域: ${id}`);
+            
+            // 如果当前区域已锁定且点击的就是这个区域，则解锁
+            if (isAreaLocked && activeHighlightArea === id) {
+              console.log(`解锁区域: ${id}`);
+              resetAllHighlightAreas();
+              infoTitle.textContent = '产品规范';
+              infoContent.innerHTML = '<div class="info-default"><p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p></div>';
+            } else {
+              // 否则锁定当前区域
+              console.log(`锁定区域: ${id}`);
+              showAreaInfo(id, true); // 第二个参数true表示锁定
+            }
+          });
+          
+          // 添加鼠标悬停事件 - 显示高亮区域信息
+          element.addEventListener('mouseenter', () => {
+            console.log(`鼠标进入区域: ${id}`);
+            if (!isAreaLocked) {
+              showAreaInfo(id);
+            }
+          });
+          
+          // 添加鼠标离开事件 - 清除高亮区域信息
+          element.addEventListener('mouseleave', () => {
+            console.log(`鼠标离开区域: ${id}`);
+            if (!isAreaLocked) {
+              clearAreaInfo(id);
+            }
+          });
+          
+          // 添加触摸开始事件 - 移动设备支持
+          element.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 防止默认触摸行为
+            
+            // 模拟点击行为
+            const clickEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            });
+            element.dispatchEvent(clickEvent);
+          });
+        }
+        
+        console.log(`渲染了 ${Object.keys(hotspots).length} 个高亮区域`);
+      }
+      
+      // 编辑模式下的高亮区域渲染函数
+      function renderEditingAreas() {
+        console.log("正在渲染编辑模式高亮区域...");
+        
+        // 先移除所有激活状态
+        resetAllHighlightAreas();
+        
+        // 清空容器
+        editingContainer.innerHTML = '';
+        editingContainer.classList.remove('hidden');
+        
+        // 遍历所有高亮区域并创建可编辑元素
+        for (const id in hotspots) {
+          console.log(`创建编辑区域: ${id}`);
+          
+          const spot = hotspots[id];
+          
+          // 创建高亮区域元素
+          const draggableArea = document.createElement('div');
+          
+          // 设置基本属性
+          draggableArea.className = 'highlight-area-edit';
+          draggableArea.id = `editable-${id}`;
+          draggableArea.dataset.areaId = id;
+          
+          // 设置位置和尺寸
+          draggableArea.style.left = `${spot.left}%`;
+          draggableArea.style.top = `${spot.top}%`;
+          draggableArea.style.width = `${spot.width}%`;
+          draggableArea.style.height = `${spot.height}%`;
+          
+          // 添加标签
+          const label = document.createElement('div');
+          label.className = 'highlight-label';
+          label.textContent = spot.tooltip;
+          draggableArea.appendChild(label);
+          
+          // 创建删除按钮 - 修复删除功能
+          const deleteBtn = document.createElement('div');
+          deleteBtn.className = 'delete-handle';
+          deleteBtn.textContent = '×';
+          deleteBtn.title = '删除高亮区域';
+          
+          // 删除按钮点击事件 - 使用独立函数并直接绑定
+          const deleteHandler = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            console.log(`删除按钮被点击: ${id}`);
+            
+            if (confirm(`确定要删除"${spot.tooltip}"高亮区域吗？`)) {
+              delete hotspots[id];
+              draggableArea.remove();
+              saveSettingsToStorage();
+              console.log(`区域已删除: ${id}`);
+            }
+          };
+          
+          // 确保事件绑定正确
+          deleteBtn.onclick = deleteHandler;
+          
+          // 添加删除按钮
+          draggableArea.appendChild(deleteBtn);
+          
+          // 添加调整大小的控制点
+          const handles = ['nw', 'ne', 'sw', 'se'];
+          handles.forEach(pos => {
+            const handle = document.createElement('div');
+            handle.className = `resize-handle resize-handle-${pos}`;
+            handle.dataset.handle = pos;
+            draggableArea.appendChild(handle);
+          });
+          
+          // 添加到编辑容器
+          editingContainer.appendChild(draggableArea);
+          
+          // 添加拖拽和调整大小功能
+          makeDraggable(draggableArea);
+          makeResizable(draggableArea);
+        }
+        
+        console.log("编辑区域渲染完成");
+      }
+      
+      // 高亮区域拖拽功能
+      function makeDraggable(element) {
+        let isDragging = false;
+        let startX, startY;
+        let initialLeft, initialTop;
+        const id = element.dataset.areaId;
+        
+        element.onmousedown = function(e) {
+          // 确保不是点击的调整大小或删除按钮
+          if (e.target.classList.contains('resize-handle') || 
+              e.target.classList.contains('delete-handle')) {
+            return;
+          }
+          
+          e.stopPropagation();
+          e.preventDefault();
+          
+          startX = e.clientX;
+          startY = e.clientY;
+          initialLeft = parseFloat(element.style.left);
+          initialTop = parseFloat(element.style.top);
+          
+          isDragging = true;
+          
+          document.addEventListener('mousemove', dragMouse);
+          document.addEventListener('mouseup', stopDragMouse);
+          
+          element.style.opacity = '0.8';
+          element.style.zIndex = '30';
+          element.style.cursor = 'grabbing';
+        };
+        
+        function dragMouse(e) {
+          if (!isDragging) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          
+          const rect = kvContainer.getBoundingClientRect();
+          const moveX = dx / rect.width * 100;
+          const moveY = dy / rect.height * 100;
+          
+          let newLeft = initialLeft + moveX;
+          let newTop = initialTop + moveY;
+          
+          const width = parseFloat(element.style.width) || 10;
+          const height = parseFloat(element.style.height) || 10;
+          newLeft = Math.max(0, Math.min(100 - width, newLeft));
+          newTop = Math.max(0, Math.min(100 - height, newTop));
+          
+          element.style.left = `${newLeft}%`;
+          element.style.top = `${newTop}%`;
+          
+          hotspots[id].left = newLeft;
+          hotspots[id].top = newTop;
+        }
+        
+        function stopDragMouse(e) {
+          if (!isDragging) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          document.removeEventListener('mousemove', dragMouse);
+          document.removeEventListener('mouseup', stopDragMouse);
+          
+          element.style.opacity = '1';
+          element.style.zIndex = '20';
+          element.style.cursor = 'move';
+          
+          isDragging = false;
+          
+          // 保存更改
+          saveSettingsToStorage();
+        }
+        
+        // 触摸屏支持
+        element.ontouchstart = function(e) {
+          if (e.target.classList.contains('resize-handle') || 
+              e.target.classList.contains('delete-handle')) {
+            return;
+          }
+          
+          e.preventDefault(); // 防止默认触摸行为
+          
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          initialLeft = parseFloat(element.style.left);
+          initialTop = parseFloat(element.style.top);
+          
+          isDragging = true;
+          
+          element.style.opacity = '0.8';
+          element.style.zIndex = '30';
+          
+          document.addEventListener('touchmove', touchMove);
+          document.addEventListener('touchend', touchEnd);
+        };
+        
+        function touchMove(e) {
+          if (!isDragging) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const dx = e.touches[0].clientX - startX;
+          const dy = e.touches[0].clientY - startY;
+          
+          const rect = kvContainer.getBoundingClientRect();
+          const moveX = dx / rect.width * 100;
+          const moveY = dy / rect.height * 100;
+          
+          let newLeft = initialLeft + moveX;
+          let newTop = initialTop + moveY;
+          
+          const width = parseFloat(element.style.width) || 10;
+          const height = parseFloat(element.style.height) || 10;
+          newLeft = Math.max(0, Math.min(100 - width, newLeft));
+          newTop = Math.max(0, Math.min(100 - height, newTop));
+          
+          element.style.left = `${newLeft}%`;
+          element.style.top = `${newTop}%`;
+          
+          hotspots[id].left = newLeft;
+          hotspots[id].top = newTop;
+        }
+        
+        function touchEnd(e) {
+          if (!isDragging) return;
+          
+          document.removeEventListener('touchmove', touchMove);
+          document.removeEventListener('touchend', touchEnd);
+          
+          element.style.opacity = '1';
+          element.style.zIndex = '20';
+          
+          isDragging = false;
+          
+          // 保存更改
+          saveSettingsToStorage();
+        }
+      }
+      
+      // 高亮区域调整大小功能
+      function makeResizable(element) {
+        const handles = element.querySelectorAll('.resize-handle');
+        
+        handles.forEach(handle => {
+          handle.addEventListener('mousedown', startResize);
+          handle.addEventListener('touchstart', startResize);
+        });
+        
+        function startResize(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const handle = e.target.dataset.handle;
+          
+          let startX, startY;
+          if (e.type === 'touchstart') {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          } else {
+            startX = e.clientX;
+            startY = e.clientY;
+          }
+          
+          const rect = kvContainer.getBoundingClientRect();
+          const elRect = element.getBoundingClientRect();
+          
+          const startWidth = elRect.width / rect.width * 100;
+          const startHeight = elRect.height / rect.height * 100;
+          const startLeft = parseFloat(element.style.left);
+          const startTop = parseFloat(element.style.top);
+          
+          document.addEventListener('mousemove', resize);
+          document.addEventListener('touchmove', resize);
+          document.addEventListener('mouseup', stopResize);
+          document.addEventListener('touchend', stopResize);
+          
+          function resize(e) {
+            let currentX, currentY;
+            if (e.type === 'touchmove') {
+              currentX = e.touches[0].clientX;
+              currentY = e.touches[0].clientY;
+            } else {
+              currentX = e.clientX;
+              currentY = e.clientY;
+            }
+            
+            const diffX = (currentX - startX) / rect.width * 100;
+            const diffY = (currentY - startY) / rect.height * 100;
+            
+            let newWidth, newHeight, newLeft, newTop;
+            
+            switch (handle) {
+              case 'se': // 右下角
+                newWidth = Math.max(1, startWidth + diffX);
+                newHeight = Math.max(1, startHeight + diffY);
+                newLeft = startLeft;
+                newTop = startTop;
+                break;
+              case 'sw': // 左下角
+                newWidth = Math.max(1, startWidth - diffX);
+                newHeight = Math.max(1, startHeight + diffY);
+                newLeft = Math.min(startLeft + diffX, startLeft + startWidth - 1);
+                newTop = startTop;
+                break;
+              case 'ne': // 右上角
+                newWidth = Math.max(1, startWidth + diffX);
+                newHeight = Math.max(1, startHeight - diffY);
+                newLeft = startLeft;
+                newTop = Math.min(startTop + diffY, startTop + startHeight - 1);
+                break;
+              case 'nw': // 左上角
+                newWidth = Math.max(1, startWidth - diffX);
+                newHeight = Math.max(1, startHeight - diffY);
+                newLeft = Math.min(startLeft + diffX, startLeft + startWidth - 1);
+                newTop = Math.min(startTop + diffY, startTop + startHeight - 1);
+                break;
+            }
+            
+            // 边界检查
+            if (newLeft < 0) {
+              newWidth += newLeft;
+              newLeft = 0;
+            }
+            if (newTop < 0) {
+              newHeight += newTop;
+              newTop = 0;
+            }
+            if (newLeft + newWidth > 100) {
+              newWidth = 100 - newLeft;
+            }
+            if (newTop + newHeight > 100) {
+              newHeight = 100 - newTop;
+            }
+            
+            element.style.width = `${newWidth}%`;
+            element.style.height = `${newHeight}%`;
+            element.style.left = `${newLeft}%`;
+            element.style.top = `${newTop}%`;
+            
+            // 更新高亮区域数据
+            const id = element.dataset.areaId;
+            hotspots[id].width = newWidth;
+            hotspots[id].height = newHeight;
+            hotspots[id].left = newLeft;
+            hotspots[id].top = newTop;
+          }
+          
+          function stopResize() {
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('touchmove', resize);
+            document.removeEventListener('mouseup', stopResize);
+            document.removeEventListener('touchend', stopResize);
+            
+            // 保存更改
+            saveSettingsToStorage();
+          }
+        }
+      }
+      
+      // 编辑模式切换
+      toggleEditModeBtn.addEventListener('click', () => {
+        // 只有管理员可以切换编辑模式
+        if (!isAdminMode) return;
+        
+        isEditMode = !isEditMode;
+        
+        if (isEditMode) {
+          console.log("进入编辑模式");
+          kvContainer.classList.add('edit-mode');
+          toggleEditModeBtn.textContent = '退出高亮区域编辑模式';
+          toggleEditModeBtn.classList.add('btn-red');
+          toggleEditModeBtn.classList.remove('btn-primary');
+          editControls.classList.remove('hidden');
+          
+          // 渲染编辑模式下的高亮区域
+          renderEditingAreas();
+        } else {
+          console.log("退出编辑模式");
+          kvContainer.classList.remove('edit-mode');
+          toggleEditModeBtn.textContent = '进入高亮区域编辑模式';
+          toggleEditModeBtn.classList.remove('btn-red');
+          toggleEditModeBtn.classList.add('btn-primary');
+          editControls.classList.add('hidden');
+          editingContainer.classList.add('hidden');
+          
+          // 延迟更新视图高亮区域，确保CSS已应用
+          setTimeout(renderViewingAreas, 50);
+        }
+      });
+      
+      // 添加新高亮区域按钮事件
+      addHotspotBtn.addEventListener('click', () => {
+        // 确保是管理员模式
+        if (!isAdminMode) return;
+        
+        // 生成唯一ID
+        let nextId = 1;
+        while (hotspots[`hotspot-${nextId}`]) {
+          nextId++;
+        }
+        
+        // 设置默认值
+        hotspotId.value = `hotspot-${nextId}`;
+        hotspotTooltip.value = `高亮区域 ${nextId}`;
+        hotspotX.value = '50';
+        hotspotY.value = '50';
+        hotspotWidth.value = '10';
+        hotspotHeight.value = '10';
+        
+        // 打开模态框
+        newHotspotModal.classList.add('active');
+      });
+      
+      closeNewHotspotModal.addEventListener('click', () => {
+        newHotspotModal.classList.remove('active');
+      });
+      
+      // 创建高亮区域
+      createHotspotBtn.addEventListener('click', () => {
+        const id = hotspotId.value.trim();
+        const tooltip = hotspotTooltip.value.trim();
+        const x = parseFloat(hotspotX.value);
+        const y = parseFloat(hotspotY.value);
+        const width = parseFloat(hotspotWidth.value);
+        const height = parseFloat(hotspotHeight.value);
+        
+        // 验证
+        if (!id) {
+          alert('请输入区域ID');
+          return;
+        }
+        
+        if (!/^[a-zA-Z0-9\-_]+$/.test(id)) {
+          alert('区域ID只能包含字母、数字、连字符和下划线');
+          return;
+        }
+        
+        if (hotspots[id]) {
+          alert('区域ID已存在，请使用其他ID');
+          return;
+        }
+        
+        if (!tooltip) {
+          alert('请输入区域提示文字');
+          return;
+        }
+        
+        // 创建新高亮区域
+        hotspots[id] = {
+          left: x,
+          top: y,
+          width: width,
+          height: height,
+          tooltip: tooltip
+        };
+        
+        // 创建默认规范内容
+        guidelines[id] = {
+          title: tooltip + " 规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">${tooltip}使用规范</h4>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <p class="text-sm">这里是${tooltip}的规范说明，请点击编辑按钮修改内容。</p>
+              </div>
+            </div>
+          `
+        };
+        
+        // 根据当前模式更新视图
+        if (isEditMode) {
+          renderEditingAreas();
+        } else {
+          renderViewingAreas();
+        }
+        
+        // 保存更改
+        saveSettingsToStorage();
+        
+        // 关闭模态框
+        newHotspotModal.classList.remove('active');
+      });
+      
+      // 显示高亮区域信息函数 - 支持点击锁定
+      function showAreaInfo(id, shouldLock = false) {
+        // 避免在编辑模式下触发
+        if (isEditMode) return;
+        
+        // 检查规范内容是否存在
+        if (!guidelines[id]) {
+          console.error(`找不到ID为 "${id}" 的规范内容!`);
+          return;
+        }
+        
+        const data = guidelines[id];
+        
+        if (data) {
+          // 如果点击了已经激活的区域，不做任何操作
+          if (isAreaLocked && activeHighlightArea === id) {
+            return;
+          }
+          
+          // 先移除所有区域的激活状态
+          resetAllHighlightAreas();
+          
+          // 更新当前激活的区域
+          activeHighlightArea = id;
+          
+          // 如果是点击的，设置锁定状态
+          isAreaLocked = shouldLock;
+          
+          // 高亮显示当前区域
+          const element = document.getElementById(id);
+          if (element) {
+            element.classList.add('active');
+            // 如果是锁定的，添加锁定样式
+            if (isAreaLocked) {
+              element.classList.add('locked');
+            }
+          }
+          
+          // 更新侧边栏内容
+          infoTitle.textContent = data.title;
+          infoContent.innerHTML = data.content;
+          
+          // 仅在管理员模式下显示编辑按钮
+          if (isAdminMode) {
+            editAreaContentBtn.style.display = 'inline-block';
+          }
+          
+          // 滚动侧栏到顶部
+          infoContent.scrollTop = 0;
+        }
+      }
+      
+      // 清除高亮区域信息函数 - 仅当未锁定时才清除
+      function clearAreaInfo(id) {
+        // 避免在编辑模式下触发
+        if (isEditMode) return;
+        
+        // 如果当前区域已锁定，不清除
+        if (isAreaLocked) return;
+        
+        // 如果当前激活区域就是要清除的区域，则清除激活状态
+        if (activeHighlightArea === id) {
+          const element = document.getElementById(id);
+          if (element) {
+            element.classList.remove('active');
+          }
+          
+          // 重置为默认内容
+          infoTitle.textContent = '产品规范';
+          infoContent.innerHTML = '<div class="info-default"><p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p></div>';
+          
+          // 隐藏编辑按钮
+          editAreaContentBtn.style.display = 'none';
+          
+          activeHighlightArea = null;
+        }
+      }
+      
+      // 重置所有高亮区域
+      function resetAllHighlightAreas() {
+        document.querySelectorAll('.highlight-area').forEach(area => {
+          area.classList.remove('active', 'locked');
+        });
+        
+        activeHighlightArea = null;
+        isAreaLocked = false;
+        
+        // 隐藏编辑按钮
+        editAreaContentBtn.style.display = 'none';
+      }
+      
+      // 背景点击事件 - 清除所有高亮状态
+      function clearAllHighlights(e) {
+        // 如果点击的是高亮区域本身，不处理
+        if (e.target.classList.contains('highlight-area')) return;
+        
+        // 重置所有高亮区域
+        resetAllHighlightAreas();
+        
+        // 重置侧边栏内容
+        infoTitle.textContent = '产品规范';
+        infoContent.innerHTML = '<div class="info-default"><p>请在图片上将鼠标悬停在不同区域，查看相应的规范说明</p></div>';
+      }
+      
+      // 编辑内容功能 - 修复保存问题
+      function editContent(id) {
+        // 确保是管理员模式
+        if (!isAdminMode) return;
+        
+        // 保存当前编辑的元素ID
+        currentEditElementId = id;
+        console.log(`开始编辑区域内容: ${id}`);
+        
+        // 防错处理：确保guidelines对象存在
+        if (!guidelines) {
+          console.warn("guidelines对象不存在，创建新对象");
+          window.guidelines = {};
+        }
+        
+        // 获取数据 - 增加防错处理
+        if (!guidelines[id]) {
+          console.warn(`ID为${id}的规范内容不存在，创建默认内容`);
+          guidelines[id] = {
+            title: hotspots[id]?.tooltip + " 规范" || "新区域规范",
+            content: `<div class="space-y-4"><p>这是一个新的规范内容，请点击编辑按钮修改。</p></div>`
+          };
+        }
+        
+        const data = guidelines[id];
+        
+        // 设置编辑标题
+        editTitle.value = data.title || '';
+        
+        // 设置HTML编辑器内容
+        editContentTextarea.value = data.content || '';
+        
+        // 日志输出
+        console.log("准备解析HTML:", data.content?.substring(0, 50));
+        
+        try {
+          // 解析HTML内容为结构化数据
+          currentEditStructure = parseHTMLToStructure(data.content || '<div class="space-y-4"><p>默认内容</p></div>');
+          
+          // 渲染可视化编辑器
+          renderVisualEditor();
+          
+          // 默认显示可视化编辑器
+          visualEditor.classList.remove('hidden');
+          htmlEditor.classList.add('hidden');
+          visualEditorTab.classList.add('bg-primary', 'text-white');
+          visualEditorTab.classList.remove('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+          htmlEditorTab.classList.remove('bg-primary', 'text-white');
+          htmlEditorTab.classList.add('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+          
+          // 显示编辑模态框
+          editModal.classList.add('active');
+          
+          console.log(`成功加载ID为${id}的内容进行编辑`);
+        } catch (error) {
+          console.error("初始化编辑内容失败:", error);
+          alert("加载内容失败: " + error.message);
+        }
+      }
+      
+      // 绑定编辑按钮事件
+      editAreaContentBtn.addEventListener('click', () => {
+        if (activeHighlightArea) {
+          editContent(activeHighlightArea);
+        }
+      });
+      
+      // 切换编辑器选项卡
+      visualEditorTab.addEventListener('click', () => {
+        visualEditor.classList.remove('hidden');
+        htmlEditor.classList.add('hidden');
+        visualEditorTab.classList.add('bg-primary', 'text-white');
+        visualEditorTab.classList.remove('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+        htmlEditorTab.classList.remove('bg-primary', 'text-white');
+        htmlEditorTab.classList.add('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+        
+        // 从HTML编辑器更新结构
+        currentEditStructure = parseHTMLToStructure(editContentTextarea.value);
+        renderVisualEditor();
+      });
+      
+      htmlEditorTab.addEventListener('click', () => {
+        htmlEditor.classList.remove('hidden');
+        visualEditor.classList.add('hidden');
+        htmlEditorTab.classList.add('bg-primary', 'text-white');
+        htmlEditorTab.classList.remove('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+        visualEditorTab.classList.remove('bg-primary', 'text-white');
+        visualEditorTab.classList.add('bg-gray-200', 'text-gray-700', 'dark:bg-gray-700', 'dark:text-gray-300');
+        
+        // 从可视化编辑器更新HTML
+        editContentTextarea.value = generateHTMLFromStructure(currentEditStructure);
+      });
+      
+      // 解析HTML为结构化数据
+      function parseHTMLToStructure(html) {
+        console.log("解析HTML为结构数据:", html.substring(0, 50) + "...");
+        
+        // 创建临时解析元素
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html.trim();
+        
+        const sections = [];
+        const processNode = (node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            if (node.textContent.trim()) {
+              return { type: 'text', content: node.textContent.trim() };
+            }
+            return null;
+          }
+          
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const tagName = node.tagName.toLowerCase();
+            
+            // 处理各种元素类型
+            if (tagName === 'h4' || tagName === 'h3' || tagName === 'h2') {
+              return { type: 'heading', content: node.textContent.trim(), level: parseInt(tagName.substring(1)) };
+            }
+            
+            if (tagName === 'p') {
+              return { type: 'paragraph', content: node.innerHTML.trim() };
+            }
+            
+            if (tagName === 'ul' || tagName === 'ol') {
+              const items = Array.from(node.querySelectorAll('li')).map(li => li.innerHTML.trim());
+              return { type: 'list', listType: tagName === 'ul' ? 'unordered' : 'ordered', items };
+            }
+            
+            if (tagName === 'div' && node.classList.contains('border')) {
+              // 卡片
+              const title = node.querySelector('.mb-2')?.textContent || '';
+              const content = Array.from(node.childNodes)
+                .filter(n => !n.classList || !n.classList.contains('mb-2'))
+                .map(n => n.outerHTML || n.textContent)
+                .join('');
+              
+              return { type: 'card', title, content };
+            }
+            
+            if (tagName === 'details') {
+              const summary = node.querySelector('summary')?.textContent || '';
+              const content = node.innerHTML.replace(/<summary.*?<\/summary>/s, '').trim();
+              return { type: 'details', summary, content };
+            }
+            
+            if (tagName === 'div' && node.classList.contains('grid')) {
+              // 网格布局
+              const columns = node.classList.contains('md:grid-cols-2') ? 2 : 1;
+              const items = Array.from(node.children).map(child => {
+                return { content: child.outerHTML };
+              });
+              return { type: 'grid', columns, items };
+            }
+            
+            if (tagName === 'div' && node.classList.contains('alert')) {
+              // 提示框
+              const alertType = node.classList.contains('alert-warning') ? 'warning' : 'info';
+              return { type: 'alert', alertType, content: node.innerHTML };
+            }
+            
+            // 处理容器元素
+            if (tagName === 'div' && node.classList.contains('space-y-4')) {
+              const children = Array.from(node.children).map(processNode).filter(Boolean);
+              return { type: 'container', children };
+            }
+            
+            // 其他元素直接保留HTML
+            return { type: 'html', content: node.outerHTML };
+          }
+          
+          return null;
+        };
+        
+        // 处理顶级元素
+        const mainContainer = tempDiv.querySelector('.space-y-4');
+        if (mainContainer) {
+          const children = Array.from(mainContainer.children).map(processNode).filter(Boolean);
+          return [{ type: 'container', children }];
+        }
+        
+        // 如果没有找到主容器，直接处理所有子元素
+        return Array.from(tempDiv.children).map(processNode).filter(Boolean);
+      }
+      
+      // 从结构化数据生成HTML
+      function generateHTMLFromStructure(structure) {
+        function renderSection(section) {
+          switch (section.type) {
+            case 'container':
+              return `<div class="space-y-4">${section.children.map(renderSection).join('')}</div>`;
+              
+            case 'heading':
+              return `<h${section.level || 4} class="font-medium text-lg">${section.content}</h${section.level || 4}>`;
+              
+            case 'paragraph':
+              return `<p class="text-sm">${section.content}</p>`;
+              
+            case 'list':
+              const tag = section.listType === 'ordered' ? 'ol' : 'ul';
+              return `<${tag} class="list-disc list-inside text-sm space-y-1">
+                ${section.items.map(item => `<li>${item}</li>`).join('')}
+              </${tag}>`;
+              
+            case 'card':
+              return `<div class="border dark:border-gray-700 p-4 rounded-lg">
+                ${section.title ? `<div class="mb-2 font-medium">${section.title}</div>` : ''}
+                ${section.content}
+              </div>`;
+              
+            case 'details':
+              return `<details>
+                <summary class="cursor-pointer hover:text-primary">${section.summary}</summary>
+                ${section.content}
+              </details>`;
+              
+            case 'grid':
+              return `<div class="grid grid-cols-1 ${section.columns > 1 ? 'md:grid-cols-' + section.columns : ''} gap-4">
+                ${section.items.map(item => item.content).join('')}
+              </div>`;
+              
+            case 'alert':
+              const alertClass = section.alertType === 'warning' ? 'alert-warning' : 'alert-default';
+              return `<div class="alert ${alertClass}">
+                ${section.content}
+              </div>`;
+              
+            case 'html':
+              return section.content;
+              
+            case 'text':
+              return section.content;
+              
+            default:
+              return '';
+          }
+        }
+        
+        return structure.map(renderSection).join('');
+      }
+      
+      // 渲染可视化编辑器
+      function renderVisualEditor() {
+        console.log("渲染可视化编辑器");
+        editorSections.innerHTML = '';
+        
+        // 递归渲染每个部分
+        function renderStructure(section, parentEl, index = 0, parentPath = []) {
+          const sectionDiv = document.createElement('div');
+          sectionDiv.className = 'editor-section mb-4 border dark:border-gray-700 p-4 rounded-lg';
+          
+          const currentPath = [...parentPath, index];
+          sectionDiv.dataset.path = currentPath.join('-');
+          
+          // 标题栏
+          const header = document.createElement('div');
+          header.className = 'flex justify-between items-center mb-2 pb-2 border-b dark:border-gray-700';
+          
+          const title = document.createElement('div');
+          title.className = 'font-medium';
+          title.textContent = getSectionTypeName(section.type);
+          header.appendChild(title);
+          
+          // 控制按钮
+          const controls = document.createElement('div');
+          controls.className = 'flex gap-2';
+          
+          // 上移按钮
+          if (index > 0) {
+            const upBtn = document.createElement('button');
+            upBtn.className = 'btn btn-sm';
+            upBtn.innerHTML = '↑';
+            upBtn.title = '上移';
+            upBtn.addEventListener('click', () => moveSection(currentPath, 'up'));
+            controls.appendChild(upBtn);
+          }
+          
+          // 下移按钮
+          if (parentEl && index < parentEl.length - 1) {
+            const downBtn = document.createElement('button');
+            downBtn.className = 'btn btn-sm';
+            downBtn.innerHTML = '↓';
+            downBtn.title = '下移';
+            downBtn.addEventListener('click', () => moveSection(currentPath, 'down'));
+            controls.appendChild(downBtn);
+          }
+          
+          // 删除按钮 - 修复删除按钮功能
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'btn btn-sm bg-red-500 text-white';
+          deleteBtn.innerHTML = '×';
+          deleteBtn.title = '删除';
+          
+          // 确保删除按钮的事件处理程序能正确运行
+          deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!confirm('确定要删除此部分吗？')) {
+              return;
+            }
+            
+            // 移除要删除的节点
+            try {
+              const pathArray = currentPath.toString().split('-').map(Number);
+              let target = currentEditStructure;
+              let parent = null;
+              let lastIndex = -1;
+              
+              // 找到正确的数组位置
+              for (let i = 0; i < pathArray.length - 1; i++) {
+                const idx = pathArray[i];
+                parent = target;
+                lastIndex = idx;
+                
+                if (target[idx].type === 'container') {
+                  target = target[idx].children;
+                } else {
+                  console.error('路径错误:', currentPath);
+                  return;
+                }
+              }
+              
+              // 删除元素
+              const deleteIndex = pathArray[pathArray.length - 1];
+              if (parent) {
+                // 删除容器中的子元素
+                target.splice(deleteIndex, 1);
+              } else {
+                // 删除顶级元素
+                currentEditStructure.splice(deleteIndex, 1);
+              }
+              
+              // 重新渲染
+              renderVisualEditor();
+            } catch (err) {
+              console.error('删除部分时出现意外错误:', err);
+              alert('删除失败，请检查控制台获取详细信息。');
+            }
+          };
+          
+          controls.appendChild(deleteBtn);
+          
+          header.appendChild(controls);
+          sectionDiv.appendChild(header);
+          
+          // 内容区域
+          const content = document.createElement('div');
+          content.className = 'editor-section-content';
+          
+          // 根据不同类型渲染不同的编辑界面
+          switch (section.type) {
+            case 'container':
+              content.innerHTML = '<div class="text-sm mb-2">容器</div>';
+              const childrenContainer = document.createElement('div');
+              childrenContainer.className = 'pl-4 border-l dark:border-gray-700';
+              content.appendChild(childrenContainer);
+              
+              section.children.forEach((child, childIndex) => {
+                renderStructure(child, section.children, childIndex, currentPath);
+              });
+              
+              // 添加按钮
+              const addBtn = document.createElement('button');
+              addBtn.className = 'btn btn-sm btn-default mt-2';
+              addBtn.textContent = '+ 添加子部分';
+              addBtn.addEventListener('click', () => {
+                const menu = document.createElement('div');
+                menu.className = 'border dark:border-gray-700 rounded-md p-2 mt-2 bg-white dark:bg-gray-800 space-y-1';
+                menu.innerHTML = `
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="heading">标题</button>
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="paragraph">段落</button>
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="list">列表</button>
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="card">卡片</button>
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="details">折叠面板</button>
+                  <button class="add-child-btn w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-type="alert">提示框</button>
+                `;
+                
+                // 添加事件
+                menu.querySelectorAll('.add-child-btn').forEach(btn => {
+                  btn.addEventListener('click', () => {
+                    const type = btn.dataset.type;
+                    addChildSection(currentPath, type);
+                    menu.remove();
+                  });
+                });
+                
+                content.appendChild(menu);
+              });
+              content.appendChild(addBtn);
+              break;
+              
+            case 'heading':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>标题级别</label>
+                  <select class="section-heading-level">
+                    <option value="2" ${section.level === 2 ? 'selected' : ''}>大标题 (H2)</option>
+                    <option value="3" ${section.level === 3 ? 'selected' : ''}>中标题 (H3)</option>
+                    <option value="4" ${!section.level || section.level === 4 ? 'selected' : ''}>小标题 (H4)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>标题内容</label>
+                  <input type="text" class="section-heading-content" value="${section.content || ''}">
+                </div>
+              `;
+              
+              // 添加事件监听
+              content.querySelector('.section-heading-level').addEventListener('change', function() {
+                updateSectionProperty(currentPath, 'level', parseInt(this.value));
+              });
+              
+              content.querySelector('.section-heading-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            case 'paragraph':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>段落内容</label>
+                  <textarea class="section-paragraph-content" rows="4">${section.content || ''}</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-paragraph-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            case 'list':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>列表类型</label>
+                  <select class="section-list-type">
+                    <option value="unordered" ${(!section.listType || section.listType === 'unordered') ? 'selected' : ''}>无序列表 (•)</option>
+                    <option value="ordered" ${section.listType === 'ordered' ? 'selected' : ''}>有序列表 (1, 2, 3)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>列表项目 (每行一个)</label>
+                  <textarea class="section-list-items" rows="4">${section.items ? section.items.join('\n') : ''}</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-list-type').addEventListener('change', function() {
+                updateSectionProperty(currentPath, 'listType', this.value);
+              });
+              
+              content.querySelector('.section-list-items').addEventListener('input', function() {
+                const items = this.value.split('\n').filter(item => item.trim());
+                updateSectionProperty(currentPath, 'items', items);
+              });
+              break;
+              
+            case 'card':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>卡片标题</label>
+                  <input type="text" class="section-card-title" value="${section.title || ''}">
+                </div>
+                <div class="form-group">
+                  <label>卡片内容</label>
+                  <textarea class="section-card-content" rows="4">${section.content || ''}</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-card-title').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'title', this.value);
+              });
+              
+              content.querySelector('.section-card-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            case 'details':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>折叠面板标题</label>
+                  <input type="text" class="section-details-summary" value="${section.summary || ''}">
+                </div>
+                <div class="form-group">
+                  <label>折叠面板内容</label>
+                  <textarea class="section-details-content" rows="4">${section.content || ''}</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-details-summary').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'summary', this.value);
+              });
+              
+              content.querySelector('.section-details-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            case 'grid':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>列数</label>
+                  <select class="section-grid-columns">
+                    <option value="1" ${(!section.columns || section.columns === 1) ? 'selected' : ''}>1列</option>
+                    <option value="2" ${section.columns === 2 ? 'selected' : ''}>2列</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>网格内容</label>
+                  <textarea class="section-grid-content" rows="4">网格布局内容较为复杂，请使用HTML模式编辑。</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-grid-columns').addEventListener('change', function() {
+                updateSectionProperty(currentPath, 'columns', parseInt(this.value));
+              });
+              break;
+              
+            case 'alert':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>提示类型</label>
+                  <select class="section-alert-type">
+                    <option value="info" ${(!section.alertType || section.alertType === 'info') ? 'selected' : ''}>信息提示</option>
+                    <option value="warning" ${section.alertType === 'warning' ? 'selected' : ''}>警告提示</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>提示内容</label>
+                  <textarea class="section-alert-content" rows="4">${section.content || ''}</textarea>
+                </div>
+              `;
+              
+              content.querySelector('.section-alert-type').addEventListener('change', function() {
+                updateSectionProperty(currentPath, 'alertType', this.value);
+              });
+              
+              content.querySelector('.section-alert-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            case 'html':
+              content.innerHTML = `
+                <div class="form-group">
+                  <label>HTML代码</label>
+                  <textarea class="section-html-content" rows="6">${section.content || ''}</textarea>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">谨慎编辑HTML代码</p>
+                </div>
+              `;
+              
+              content.querySelector('.section-html-content').addEventListener('input', function() {
+                updateSectionProperty(currentPath, 'content', this.value);
+              });
+              break;
+              
+            default:
+              content.innerHTML = `<div class="text-sm">未知类型: ${section.type}</div>`;
+          }
+          
+          sectionDiv.appendChild(content);
+          editorSections.appendChild(sectionDiv);
+        }
+        
+        // 渲染所有部分
+        currentEditStructure.forEach((section, index) => {
+          renderStructure(section, currentEditStructure, index);
+        });
+      }
+      
+      // 获取部分类型名称
+      function getSectionTypeName(type) {
+        const typeNames = {
+          container: '容器',
+          heading: '标题',
+          paragraph: '段落',
+          list: '列表',
+          card: '卡片',
+          details: '折叠面板',
+          grid: '网格布局',
+          alert: '提示框',
+          html: 'HTML代码'
+        };
+        
+        return typeNames[type] || type;
+      }
+      
+      // 更新部分属性 - 修复数据更新问题
+      function updateSectionProperty(path, property, value) {
+        console.log(`正在更新属性 - 路径: ${path}, 属性: ${property}, 值: ${value?.substring ? value.substring(0, 30) + '...' : value}`);
+        
+        try {
+          const pathArray = path.toString().split('-').map(Number);
+          let current = currentEditStructure;
+          
+          // 找到正确的部分
+          for (let i = 0; i < pathArray.length - 1; i++) {
+            if (!current[pathArray[i]]) {
+              console.error(`路径错误: 找不到索引 ${pathArray[i]}`, current);
+              return;
+            }
+            
+            if (current[pathArray[i]].type === 'container') {
+              current = current[pathArray[i]].children;
+            } else {
+              console.error('路径错误: 不是容器类型', current[pathArray[i]]);
+              return;
+            }
+          }
+          
+          // 安全检查
+          const finalIndex = pathArray[pathArray.length - 1];
+          if (finalIndex >= current.length) {
+            console.error(`索引越界: ${finalIndex} >= ${current.length}`);
+            return;
+          }
+          
+          // 更新属性并记录日志
+          console.log(`更新前的值: ${JSON.stringify(current[finalIndex][property])}`);
+          current[finalIndex][property] = value;
+          console.log(`更新后的值: ${JSON.stringify(current[finalIndex][property])}`);
+          
+          // 创建新的HTML预览 - 确保变更被应用
+          const tempHtml = generateHTMLFromStructure(currentEditStructure);
+          console.log("更新后生成的HTML:", tempHtml.substring(0, 50) + "...");
+        } catch (err) {
+          console.error("更新属性时出错:", err);
+        }
+      }
+      
+      // 移动部分
+      function moveSection(path, direction) {
+        const pathArray = path.toString().split('-').map(Number);
+        let current = currentEditStructure;
+        
+        // 找到正确的数组
+        for (let i = 0; i < pathArray.length - 1; i++) {
+          if (current[pathArray[i]].type === 'container') {
+            current = current[pathArray[i]].children;
+          } else {
+            console.error('路径错误:', path);
+            return;
+          }
+        }
+        
+        const index = pathArray[pathArray.length - 1];
+        
+        if (direction === 'up' && index > 0) {
+          // 上移
+          [current[index], current[index - 1]] = [current[index - 1], current[index]];
+        } else if (direction === 'down' && index < current.length - 1) {
+          // 下移
+          [current[index], current[index + 1]] = [current[index + 1], current[index]];
+        }
+        
+        // 重新渲染
+        renderVisualEditor();
+      }
+      
+      // 添加子部分
+      function addChildSection(path, type) {
+        const pathArray = path.toString().split('-').map(Number);
+        let current = currentEditStructure;
+        
+        // 找到正确的数组
+        for (let i = 0; i < pathArray.length - 1; i++) {
+          if (current[pathArray[i]].type === 'container') {
+            current = current[pathArray[i]].children;
+          } else {
+            console.error('路径错误:', path);
+            return;
+          }
+        }
+        
+        const index = pathArray[pathArray.length - 1];
+        
+        if (current[index].type !== 'container') {
+          console.error('不是容器:', path);
+          return;
+        }
+        
+        // 创建新部分
+        let newSection;
+        switch (type) {
+          case 'heading':
+            newSection = { type: 'heading', level: 4, content: '新标题' };
+            break;
+          case 'paragraph':
+            newSection = { type: 'paragraph', content: '新段落内容' };
+            break;
+          case 'list':
+            newSection = { type: 'list', listType: 'unordered', items: ['项目1', '项目2', '项目3'] };
+            break;
+          case 'card':
+            newSection = { type: 'card', title: '卡片标题', content: '卡片内容' };
+            break;
+          case 'details':
+            newSection = { type: 'details', summary: '点击展开', content: '详细内容' };
+            break;
+          case 'alert':
+            newSection = { type: 'alert', alertType: 'info', content: '提示信息内容' };
+            break;
+          default:
+            newSection = { type: type, content: '新内容' };
+        }
+        
+        // 添加到容器
+        current[index].children.push(newSection);
+        
+        // 重新渲染
+        renderVisualEditor();
+      }
+      
+      // 添加新部分按钮
+      addSectionBtn.addEventListener('click', () => {
+        sectionTypeMenu.classList.toggle('hidden');
+      });
+      
+      // 添加部分类型选择
+      addSectionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.type;
+          
+          // 创建新部分
+          let newSection;
+          switch (type) {
+            case 'heading':
+              newSection = { type: 'heading', level: 4, content: '新标题' };
+              break;
+            case 'paragraph':
+              newSection = { type: 'paragraph', content: '新段落内容' };
+              break;
+            case 'list':
+              newSection = { type: 'list', listType: 'unordered', items: ['项目1', '项目2', '项目3'] };
+              break;
+            case 'card':
+              newSection = { type: 'card', title: '卡片标题', content: '卡片内容' };
+              break;
+            case 'grid':
+              newSection = { 
+                type: 'grid', 
+                columns: 2, 
+                items: [
+                  { content: '<div class="border dark:border-gray-700 p-4 rounded-lg"><div class="mb-2 font-medium">项目1</div><p class="text-sm">内容1</p></div>' },
+                  { content: '<div class="border dark:border-gray-700 p-4 rounded-lg"><div class="mb-2 font-medium">项目2</div><p class="text-sm">内容2</p></div>' }
+                ] 
+              };
+              break;
+            case 'details':
+              newSection = { type: 'details', summary: '点击展开', content: '详细内容' };
+              break;
+            case 'alert':
+              newSection = { type: 'alert', alertType: 'info', content: '提示信息内容' };
+              break;
+            default:
+              newSection = { type: type, content: '新内容' };
+          }
+          
+          // 添加到结构中
+          currentEditStructure.push(newSection);
+          
+          // 隐藏菜单并重新渲染
+          sectionTypeMenu.classList.add('hidden');
+          renderVisualEditor();
+        });
+      });
+      
+      // 完全重构的保存功能 - 使用最原始和可靠的方法处理数据
+      saveEditBtn.addEventListener('click', () => {
+        console.log("=== 开始保存编辑内容 ===");
+        
+        // 第1步：安全检查当前编辑的元素ID
+        if (!currentEditElementId) {
+          console.error("保存失败：没有获取到当前编辑的元素ID");
+          alert("错误：未找到正在编辑的元素ID");
+          return;
+        }
+        
+        console.log(`正在保存ID为 ${currentEditElementId} 的内容...`);
+        
+        // 第2步：获取内容 - 根据当前激活的编辑器决定
+        let content;
+        try {
+          if (htmlEditor.classList.contains('hidden')) {
+            // 使用可视化编辑器生成HTML内容
+            content = generateHTMLFromStructure(currentEditStructure);
+            console.log("使用可视化编辑器生成的内容:", content.substring(0, 50) + "...");
+          } else {
+            // 使用HTML编辑器的内容
+            content = editContentTextarea.value || "<p>暂无内容</p>";
+            console.log("使用HTML编辑器的内容:", content.substring(0, 50) + "...");
+          }
+        } catch (err) {
+          console.error("获取编辑内容失败:", err);
+          content = "<p>内容获取失败，请重试</p>";
+        }
+        
+        // 第3步：准备新数据
+        const titleValue = editTitle.value || "未命名规范";
+        console.log("标题:", titleValue);
+        
+        // 第4步：安全保存 - 使用最简单直接的方式，避免任何复杂的对象操作
+        try {
+          // 确保全局对象存在
+          if (typeof window.guidelines !== 'object' || window.guidelines === null) {
+            window.guidelines = {};
+          }
+          
+          // 直接赋值 - 简单明了地创建新对象并赋值
+          guidelines[currentEditElementId] = {
+            title: titleValue,
+            content: content
+          };
+          
+          console.log("全局对象赋值成功:", guidelines[currentEditElementId].title);
+          
+          // 更新UI显示
+          if (activeHighlightArea === currentEditElementId) {
+            infoTitle.textContent = titleValue;
+            infoContent.innerHTML = content;
+            console.log("UI已更新");
+          }
+          
+          // 立即保存到本地存储
+          const success = saveSettingsToStorage();
+          console.log("保存状态:", success ? "成功" : "失败");
+          
+          // 关闭编辑模态框
+          editModal.classList.remove('active');
+          
+          // 通知用户
+          alert('内容已成功保存！');
+          console.log("=== 保存操作完成 ===");
+          return;
+        } catch (error) {
+          console.error("标准保存方法失败，尝试备用方法:", error);
+        }
+        
+        // 备用保存方法 - 处理紧急情况
+        try {
+          console.warn("执行备用保存方法...");
+          
+          // 1. 创建临时存储表示 - 绝不使用引用或复杂对象
+          var tempStorage = {};
+          tempStorage.title = titleValue;
+          tempStorage.content = content;
+          
+          // 2. 直接赋值到全局
+          window.guidelines = window.guidelines || {};
+          window.guidelines[currentEditElementId] = tempStorage;
+          
+          // 3. 强制刷新界面
+          if (activeHighlightArea === currentEditElementId) {
+            infoTitle.textContent = titleValue;
+            infoContent.innerHTML = content;
+          }
+          
+          // 4. 尝试保存 - 这次跳过常规保存，尝试直接写入
+          try {
+            if (typeof localStorage !== 'undefined') {
+              // 构建最小数据包
+              var minimalData = {
+                title: titleValue,
+                content: content,
+                timestamp: new Date().toISOString()
+              };
+              
+              // 直接保存当前编辑项
+              localStorage.setItem(
+                "kv_guide_item_" + currentEditElementId, 
+                JSON.stringify(minimalData)
+              );
+              
+              console.log("备用方法: 独立项目保存成功");
+            }
+          } catch (storageErr) {
+            console.error("备用存储失败:", storageErr);
+          }
+          
+          // 关闭模态框
+          editModal.classList.remove('active');
+          alert('内容已保存 (使用备用方法)');
+          console.log("=== 备用保存操作完成 ===");
+        } catch (finalError) {
+          console.error("所有保存方法都失败:", finalError);
+          
+          // 弹出确认框让用户手动复制内容
+          if (confirm("保存失败。是否需要复制你编辑的内容以防丢失？")) {
+            // 创建一个文本区域供用户复制
+            var textToCopy = "标题: " + titleValue + "\n\n内容: " + content;
+            var tempInput = document.createElement("textarea");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("内容已复制到剪贴板");
+          }
+          
+          alert("保存失败: " + finalError.message + "\n请尝试使用HTML模式编辑，或刷新页面后重试。");
+        }
+      });
+      
+      closeEditModal.addEventListener('click', () => {
+        // 放弃修改并关闭模态框
+        editModal.classList.remove('active');
+      });
+      
+      // 按ESC键关闭模态框
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (editModal.classList.contains('active')) {
+            editModal.classList.remove('active');
+          }
+          if (importModal.classList.contains('active')) {
+            importModal.classList.remove('active');
+          }
+          if (exportModal.classList.contains('active')) {
+            exportModal.classList.remove('active');
+          }
+          if (htmlExportModal.classList.contains('active')) {
+            htmlExportModal.classList.remove('active');
+          }
+          if (newHotspotModal.classList.contains('active')) {
+            newHotspotModal.classList.remove('active');
+          }
+          if (adminLoginModal.classList.contains('active')) {
+            adminLoginModal.classList.remove('active');
+            adminPassword.value = '';
+            adminLoginError.classList.add('hidden');
+          }
+          if (versionHistoryModal.classList.contains('active')) {
+            versionHistoryModal.classList.remove('active');
+          }
+        }
+      });
+      
+      // 定义各元素的规范内容 - 基于新KV图重新定义
+      const guidelines = {
+        logo: {
+          title: "华为Logo规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">华为Logo使用规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">尺寸要求</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>最小展示尺寸不得低于24px</li>
+                    <li>KV中推荐尺寸为画面宽度的8-10%</li>
+                    <li>保持Logo周围足够的安全空间</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">色彩规范</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>标准色值: #D81E06 (华为红)</li>
+                    <li>文字部分必须使用纯黑或纯白</li>
+                    <li>严禁更改Logo任何部分的颜色</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">放置位置</div>
+                <p class="text-sm">华为Logo通常位于KV的右上角或正上方，确保与其他元素保持适当距离，突出品牌标识。竖版素材可放置在顶部中央位置。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">常见问题</div>
+                <div class="space-y-2 text-sm">
+                  <details>
+                    <summary class="cursor-pointer hover:text-primary">华为Logo可以单独使用花瓣部分吗？</summary>
+                    <p class="pl-4 mt-1">在特定情况下可以，但必须遵循品牌手册规定，并获得品牌管理部门的批准。大多数情况下应使用完整Logo。</p>
+                  </details>
+                  <details>
+                    <summary class="cursor-pointer hover:text-primary">KV中Logo必须使用红色原版吗？</summary>
+                    <p class="pl-4 mt-1">原则上应优先使用红色Logo。在深色或特殊背景下，可使用纯白版本，但需保证可识别度和美观性。</p>
+                  </details>
+                  <details>
+                    <summary class="cursor-pointer hover:text-primary">Logo周围需要保留多大的安全区域？</summary>
+                    <p class="pl-4 mt-1">至少为Logo高度的1/2，理想状态为Logo高度的1倍。安全区域内不应放置任何干扰元素。</p>
+                  </details>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        "product-name": {
+          title: "Mate70系列产品名称规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">产品名称使用规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">字体要求</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>主要字体：华为鸿蒙字体</li>
+                    <li>权重：Bold (700)</li>
+                    <li>严格遵守品牌VI字体规范</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">规格设置</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>字号：画面高度的5-8%</li>
+                    <li>行高：1.2-1.5倍字号</li>
+                    <li>字间距：默认或微调至0.02em</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">命名规则</div>
+                <p class="text-sm">产品名称格式为"HUAWEI Mate70 系列"，其中"系列"二字使用中文，品牌名和产品型号间不加任何符号。不得缩写或改变其官方表述方式。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">注意事项</div>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                  <li>中英文混排时需注意字体搭配</li>
+                  <li>保持各语言版本的一致视觉效果</li>
+                  <li>确保产品名称作为KV中视觉重点之一</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        "slogan": {
+          title: "产品标语规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">产品标语"盎然向新"使用规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">字体要求</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>必须使用中文华为鸿蒙字体</li>
+                    <li>字重：Medium或Bold</li>
+                    <li>字间距保持默认或略微加宽</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">尺寸与位置</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>字号为产品名称的60-80%</li>
+                    <li>位于产品名称正下方</li>
+                    <li>与产品名称保持固定间距</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">含义解释</div>
+                <p class="text-sm">"盎然向新"表达产品带来的全新体验与创新活力，传达华为品牌持续进取、不断创新的精神。在设计表现上应呈现出简洁有力、富有未来感的特点。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">国际化处理</div>
+                <p class="text-sm">国际版本的标语需专业翻译，确保传达相同理念。无法准确翻译时，可使用该市场认可的本地化替代文案，但需保持设计风格统一。</p>
+              </div>
+            </div>
+          `
+        },
+        "camera-module": {
+          title: "摄像头模组设计规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">Mate70系列摄像头模组规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">设计要点</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>圆形环形设计，强调科技感</li>
+                    <li>金属质感边框，提升高端感</li>
+                    <li>镜头排列规整且有层次感</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">展示方式</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>应清晰展示模组的环形轮廓</li>
+                    <li>适当强调镜头的光学质感</li>
+                    <li>表现摄像头与机身的完美融合</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">表现技巧</div>
+                <p class="text-sm">在KV中展示摄像头模组时，应适当使用光线突出其金属质感和光学镜片的通透感。可以使用点光源营造专业感，但不要过度使用耀眼的反光，以免影响整体美感。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">禁止事项</div>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                  <li>不得修改或简化摄像头模组的设计和排列</li>
+                  <li>避免使用过度夸张的光效和后期处理</li>
+                  <li>不得改变摄像头模组的原始比例和尺寸关系</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        "xmage": {
+          title: "XMAGE影像技术标识规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">XMAGE影像技术标识规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">标识使用</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>必须使用官方XMAGE标识</li>
+                    <li>不得更改标识的字体或比例</li>
+                    <li>通常位于产品名称或产品特性描述附近</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">尺寸与位置</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>在KV中的尺寸保持清晰可辨</li>
+                    <li>应保持足够的识别度</li>
+                    <li>可放置于摄像头模组附近或产品特性描述中</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">品牌含义</div>
+                <p class="text-sm">XMAGE代表华为自主研发的影像品牌，象征着卓越的移动影像技术和突破性的影像体验。在宣传材料中，应传达其专业性和技术革新性。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">常见问题</div>
+                <div class="space-y-2 text-sm">
+                  <details>
+                    <summary class="cursor-pointer hover:text-primary">XMAGE标识可以修改颜色吗？</summary>
+                    <p class="pl-4 mt-1">原则上应使用官方标准版本。在特殊设计需求下，可使用纯黑或纯白版本，但需确保清晰可辨。</p>
+                  </details>
+                  <details>
+                    <summary class="cursor-pointer hover:text-primary">可以将XMAGE作为主标题使用吗？</summary>
+                    <p class="pl-4 mt-1">XMAGE通常作为技术认证标识使用，不建议作为主标题。但在专门突出影像功能的宣传材料中，可以适当强调。</p>
+                  </details>
+                </div>
+              </div>
+            </div>
+          `
+        },
+        "feature-text": {
+          title: "产品特性描述规范",
+          content: `
+            <div class="space-y-4">
+              <h4 class="font-medium text-lg">产品特性描述规范</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">文案要求</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>简洁精炼，每项控制在3-5个汉字</li>
+                    <li>通常使用3个核心卖点</li>
+                    <li>表达清晰直观，避免技术术语</li>
+                  </ul>
+                </div>
+                <div class="border dark:border-gray-700 p-4 rounded-lg">
+                  <div class="mb-2 font-medium">排版规范</div>
+                  <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>使用 "｜" 符号分隔各特性</li>
+                    <li>居中或左对齐排版</li>
+                    <li>与产品标语保持适当间距</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">设计表现</div>
+                <p class="text-sm">产品特性描述文字应使用华为鸿蒙字体，字号适中，确保在整体KV中清晰可辨但不喧宾夺主。颜色可使用浅灰、深灰等中性色，在深色背景上使用白色或浅色系。</p>
+              </div>
+              <div class="border dark:border-gray-700 p-4 rounded-lg">
+                <div class="mb-2 font-medium">内容示例</div>
+                <p class="text-sm">鸿蒙AI | 高亮钛云武架构 | 红枫原色影像</p>
+                <p class="text-sm mt-2">这些特性各自代表产品的AI能力、硬件架构和影像技术，共同构成产品的核心竞争力。应根据产品定位和市场关注点选择最具吸引力的特性。</p>
+              </div>
+            </div>
+          `
+        }
+      };
+      
+      // 初始化应用
+      initTheme();
+      initApplication();
+      
+      // 在移动设备上修改提示文本
+      if (isMobile) {
+        document.querySelector('.mobile-hint').innerHTML = 
+          '<span class="text-primary dark:text-primary">点击图片上的不同区域查看规范</span>';
+      }
+      
+      // 检查DOM中的元素
+      console.log("重要DOM元素检查:");
+      console.log("- viewingContainer:", viewingContainer ? "存在" : "不存在");
+      console.log("- editingContainer:", editingContainer ? "存在" : "不存在");
+      console.log("- infoTitle:", infoTitle ? "存在" : "不存在");
+      console.log("- infoContent:", infoContent ? "存在" : "不存在");
+      console.log("- kvBackground:", kvBackground ? "存在" : "不存在");
+      console.log("- editAreaContentBtn:", editAreaContentBtn ? "存在" : "不存在");
+      
+      // 检查是否在Poe环境中
+      console.log("运行环境:", isPoeEnvironment ? "Poe平台" : "独立HTML");
+      
+      // 检查是否有kvGuideConfig
+      if (window.kvGuideConfig) {
+        console.log("检测到嵌入配置数据，开始初始化配置...");
+        
+        // 应用配置
+        if (window.kvGuideConfig.image) {
+          selectedImage = window.kvGuideConfig.image;
+          kvBackground.src = selectedImage;
+          emptyState.classList.add('hidden');
+        }
+        
+        // 导入热区数据
+        if (window.kvGuideConfig.hotspots) {
+          Object.keys(window.kvGuideConfig.hotspots).forEach(key => {
+            hotspots[key] = JSON.parse(JSON.stringify(window.kvGuideConfig.hotspots[key]));
+          });
+        }
+        
+        // 导入规范内容
+        if (window.kvGuideConfig.guidelines) {
+          Object.keys(window.kvGuideConfig.guidelines).forEach(key => {
+            guidelines[key] = JSON.parse(JSON.stringify(window.kvGuideConfig.guidelines[key]));
+          });
+        }
+        
+        // 导入标题
+        if (window.kvGuideConfig.title) {
+          mainTitle.textContent = window.kvGuideConfig.title;
+          document.title = window.kvGuideConfig.title;
+        }
+        
+        // 导入版本历史
+        if (window.kvGuideConfig.versionHistory) {
+          versionHistory = JSON.parse(JSON.stringify(window.kvGuideConfig.versionHistory));
+        }
+        
+        // 图片加载后才渲染热区
+        function initializeHighlightAreas() {
+          setTimeout(renderViewingAreas, 300);
+        }
+        
+        // 图片加载事件
+        kvBackground.onload = initializeHighlightAreas;
+        
+        // 已加载完成就直接初始化
+        if (kvBackground.complete) {
+          initializeHighlightAreas();
+        }
+      }
+    });
+  </script>
+
+
+</body></html>
