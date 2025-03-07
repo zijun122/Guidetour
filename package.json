@@ -1,0 +1,8 @@
+{
+    "name": "kv-guide",
+    "version": "1.0.0",
+    "description": "KV规范指南",
+    "dependencies": {
+      "faunadb": "^4.8.0"
+    }
+  }
