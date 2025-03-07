@@ -5332,5 +5332,241 @@
     });
   </script>
 
+<!-- 云存储增强模块 -->
+<script>
+  // 云存储模块
+  const CloudStorage = {
+    // 保存配置到云端
+    saveConfig: async function(config) {
+      try {
+        // 获取管理员令牌（从localStorage）
+        const token = localStorage.getItem('admin-token') || 'kv-admin-token-123456';
 
+        const response = await fetch('/.netlify/functions/save-config', {
+          method: 'POST',
+          body: JSON.stringify(config),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': token
+          }
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || '保存失败');
+        }
+
+        const result = await response.json();
+        return result.success;
+      } catch (e) {
+        console.error('保存到云端失败:', e);
+        return false;
+      }
+    },
+
+    // 从云端加载配置
+    loadConfig: async function() {
+      try {
+        const response = await fetch('/.netlify/functions/get-config');
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || '加载失败');
+        }
+
+        const data = await response.json();
+        return data.config;
+      } catch (e) {
+        console.error('从云端加载失败:', e);
+        return null;
+      }
+    }
+  };
+
+  // 在页面加载完成后尝试从云端加载配置
+  document.addEventListener('DOMContentLoaded', async function() {
+    console.log("尝试从云端加载配置...");
+
+    try {
+      // 首先检查页面是否已经初始化
+      if (typeof window.initApplication === 'function') {
+        // 先初始化应用
+        window.initApplication();
+      }
+
+      // 然后尝试从云端加载
+      const cloudConfig = await CloudStorage.loadConfig();
+
+      if (cloudConfig) {
+        console.log("从云端加载配置成功");
+
+        // 应用配置
+        if (cloudConfig.title) {
+          const titleEl = document.getElementById('main-title');
+          if (titleEl) {
+            titleEl.textContent = cloudConfig.title;
+            document.title = cloudConfig.title;
+          }
+        }
+
+        if (cloudConfig.image) {
+          window.selectedImage = cloudConfig.image;
+          const kvBg = document.getElementById('kv-background');
+          if (kvBg) {
+            kvBg.src = cloudConfig.image;
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) emptyState.classList.add('hidden');
+          }
+        }
+
+        if (cloudConfig.hotspots) {
+          window.hotspots = {};
+          Object.keys(cloudConfig.hotspots).forEach(key => {
+            window.hotspots[key] = JSON.parse(JSON.stringify(cloudConfig.hotspots[key]));
+          });
+        }
+
+        if (cloudConfig.guidelines) {
+          window.guidelines = {};
+          Object.keys(cloudConfig.guidelines).forEach(key => {
+            window.guidelines[key] = JSON.parse(JSON.stringify(cloudConfig.guidelines[key]));
+          });
+        }
+
+        if (cloudConfig.versionHistory) {
+          window.versionHistory = JSON.parse(JSON.stringify(cloudConfig.versionHistory));
+        }
+
+        // 渲染热区
+        if (typeof window.renderViewingAreas === 'function') {
+          setTimeout(window.renderViewingAreas, 300);
+        }
+      } else {
+        console.log("未找到云端配置，使用本地设置");
+      }
+
+      // 添加发布按钮（如果是管理员模式）
+      if (window.isAdminMode) {
+        addDeployButton();
+      }
+    } catch (e) {
+      console.error("云配置加载出错:", e);
+    }
+  });
+
+  // 修改保存函数
+  const originalSaveFunction = window.saveSettingsToStorage;
+  if (typeof originalSaveFunction === 'function') {
+    window.saveSettingsToStorage = async function() {
+      // 先调用原始保存函数
+      const result = originalSaveFunction.apply(this, arguments);
+
+      // 如果本地保存成功且是管理员模式，则保存到云端
+      if (result && window.isAdminMode) {
+        try {
+          const configToSave = {
+            timestamp: new Date().toISOString(),
+            hotspots: window.hotspots || {},
+            guidelines: window.guidelines || {},
+            title: document.getElementById('main-title') ?
+                 document.getElementById('main-title').textContent :
+                 document.title,
+            image: window.selectedImage,
+            versionHistory: window.versionHistory || []
+          };
+
+          const cloudResult = await CloudStorage.saveConfig(configToSave);
+          console.log("云端保存结果:", cloudResult ? "成功" : "失败");
+        } catch (e) {
+          console.error("云端保存出错:", e);
+        }
+      }
+
+      return result;
+    };
+  }
+
+  // 添加发布按钮函数
+  function addDeployButton() {
+    // 避免重复添加
+    if (document.getElementById('deploy-changes')) return;
+
+    const bottomActions = document.getElementById('bottom-actions');
+    if (!bottomActions) return;
+
+    const deployBtn = document.createElement('button');
+    deployBtn.id = 'deploy-changes';
+    deployBtn.className = 'btn btn-primary';
+    deployBtn.style.margin = '10px auto';
+    deployBtn.style.display = 'block';
+    deployBtn.innerHTML = '发布更改到网站';
+
+    deployBtn.onclick = async function() {
+      if (!confirm('确定要发布当前配置到公开网站吗？所有用户将立即看到这些更改。')) return;
+
+      this.disabled = true;
+      this.innerHTML = '正在发布...';
+
+      try {
+        // 保存当前配置
+        const configToSave = {
+          timestamp: new Date().toISOString(),
+          hotspots: window.hotspots || {},
+          guidelines: window.guidelines || {},
+          title: document.getElementById('main-title') ?
+                 document.getElementById('main-title').textContent :
+                 document.title,
+          image: window.selectedImage,
+          versionHistory: window.versionHistory || []
+        };
+
+        // 保存到云端
+        const cloudSaved = await CloudStorage.saveConfig(configToSave);
+
+        if (cloudSaved) {
+          // 触发Netlify重新构建
+          // 注意：替换为您实际的deploy hook URL
+          const deployHookUrl = 'https://api.netlify.com/build_hooks/67cb17c3cdc8c849ff36817c';
+
+          try {
+            const response = await fetch(deployHookUrl, {method: 'POST'});
+
+            if (response.ok) {
+              alert('更改已成功发布！网站将在1-2分钟内更新。');
+            } else {
+              alert('触发网站更新失败，但配置已保存。');
+            }
+          } catch (err) {
+            alert('触发部署失败，但配置已保存。错误: ' + err.message);
+          }
+        } else {
+          alert('保存配置到云端失败，请重试。');
+        }
+      } catch (error) {
+        console.error('发布过程出错:', error);
+        alert('发布过程出错: ' + error.message);
+      }
+
+      this.disabled = false;
+      this.innerHTML = '发布更改到网站';
+    };
+
+    bottomActions.appendChild(deployBtn);
+  }
+
+  // 在现有的管理员登录成功后添加deploy按钮
+  const originalEnterAdminMode = window.enterAdminMode;
+  if (typeof originalEnterAdminMode === 'function') {
+    window.enterAdminMode = function() {
+      // 调用原始函数
+      originalEnterAdminMode.apply(this, arguments);
+
+      // 添加发布按钮
+      setTimeout(addDeployButton, 100);
+
+      // 存储管理员令牌
+      localStorage.setItem('admin-token', 'kv-admin-token-123456');
+    };
+  }
+</script>
 </body></html>
